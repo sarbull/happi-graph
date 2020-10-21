@@ -1,659 +1,717 @@
-<!doctype>
+<!doctype html>
 <html>
-  <head>
-    <title>D3 Graph</title>
+
+<head>
+  <title>D3 Graph</title>
 
   <style>
-.link-container {
+    .link-container {}
 
-}
+    .link {
+      stroke: #000;
+      stroke-width: 2px;
+    }
 
-.link {
-  stroke: #000;
-  stroke-width: 2px;
-}
+    .node-container > .node {
+      cursor: move;
+      fill: #fff;
+      stroke: #cccccc;
+      stroke-width: 1px;
+    }
 
-.drag-link {
-  stroke: #000;
-  stroke-width: 2px;
-}
+    .node-container>.data {
+      fill: #000000;
+      white-space: pre;
+      font-size: 14px;
+      letter-spacing: 0em;
+      cursor: move;
+      font-family: 'Roboto', sans-serif;
+    }
 
-.drag-link.tool-connect {
-  opacity: 0;
-}
+    .node-container>.data>.value {}
 
-.drag-link.tool-connect.drag {
-  opacity: 1;
-}
+    .node-container > .pin {
+      fill: #eb4b0b;
+    }
 
-.node-container {
-  cursor: move;
-  fill: #fff;
-  stroke: #eb4b0b;
-  stroke-width: 2px;
-}
+    .node-container>.data>.label {
+      /* font-weight: 400; */
+      fill: #AFAFAF;
+    }
 
-.node {
-  cursor: move;
-  rx: 10;
-  ry: 10;
-}
+    .node {
+      cursor: move;
+      rx: 40;
+      ry: 40;
+    }
 
-.node-container.selected {
-  stroke-width: 4px;
-}
-
+    .node-container.selected>.node {
+      stroke-width: 4px;
+      stroke: #eb4b0b;
+    }
   </style>
-  </head>
-  <body>
+</head>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<body>
 
-<button onclick="customZoom(-1);">-</button>
-<button onclick="customZoom(1);">+</button>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
 
-<button onclick="fitContent();">Fit</button>
+  <button onclick="customZoom(-1);">-</button>
+  <button onclick="customZoom(1);">+</button>
 
-<hr>
+  <button onclick="fitContent();">Fit</button>
 
-<div style="width:100%;background:#eee;">
-<svg width="100%" height="600" style="border: 1px solid black">
-  <defs>
-    <marker id="arrow-start" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M9,0 L9,6 L0,3 z" fill="#000" />
-    </marker>
-    
-    <marker id="arrow-end" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#000" />      
-    </marker>
-  </defs>
-</svg>
-</div>
+  <hr>
 
-<hr>
+  <div style="width:100%;background:#eee;">
+    <svg width="100%" height="600" style="border: 1px solid black">
+      <defs>
+        <marker id="arrow-start" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto"
+          markerUnits="strokeWidth">
+          <path d="M9,0 L9,6 L0,3 z" fill="#000" />
+        </marker>
 
-<code id="data" style="width:200px;"></code>
+        <marker id="arrow-end" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto"
+          markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <hr>
+
+  <code id="data" style="width:200px;"></code>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js"></script>
 
-<script>
-var svg = d3.select("svg");
+  <script>
+    var svg = d3.select("svg");
 
-var width = +svg.node().getBoundingClientRect().width;
-var height = +svg.node().getBoundingClientRect().height;
+    var width = +svg.node().getBoundingClientRect().width;
+    var height = +svg.node().getBoundingClientRect().height;
 
-var currentTransformation = {translateX: 0, translateY: 0, scale: 1};
+    var currentTransformation = { translateX: 0, translateY: 0, scale: 1 };
 
-var allGroup = svg.append('g').attr('class', 'everything');
+    var allGroup = svg.append('g').attr('class', 'everything');
 
-var fitContentPadding = 40;
+    var fitContentPadding = 40;
 
-var linksGroup = allGroup.append("g").attr("class", "links");
+    var linksGroup = allGroup.append("g").attr("class", "links");
 
-var nodesGroup = allGroup.append("g").attr("class", "nodes");
+    var nodesGroup = allGroup.append("g").attr("class", "nodes");
 
-var links;
-var nodes;
+    var links;
+    var nodes;
 
-function createComponentsSelectorByIDs(nodeIDs) {
-  if (!nodeIDs || nodeIDs.length === 0) {
-    return '';
-  }
-  
-  var resultSelector = '';
-  var nodesCount = nodeIDs.length;
-  for(var i = 0; i < nodesCount; i++) {
-    resultSelector += '#' + nodeIDs[i];
-    if (i < nodesCount - 1) {
-      resultSelector += ',';
+    let onNodeClick = (d) => {
+      let e = document.getElementById('data');
+
+      e.innerHTML = JSON.stringify(d);
     }
-  }
 
-  return resultSelector;
-}
-
-//////////// ZOOM //////////// 
-//add zoom capabilities
-var zoom = d3.zoom().on("zoom", zooming);
-
-function customZoom(value) {
-  if(value > 0) {
-    zoom.scaleBy(svg.transition(), 1.2);
-  } else {
-    zoom.scaleBy(svg.transition(), 0.8);
-  }
-}
-  
-function zooming(){
-  // Enables the possibility to drag around the whole SVG content and of course the zooming functionality.
-  currentTransformation.scale = d3.event.transform.k;
-  currentTransformation.translateX = d3.event.transform.x;
-  currentTransformation.translateY = d3.event.transform.y;
-  
-  allGroup.attr("transform", d3.event.transform);
-}
-
-// Enable zoom
-svg.call(zoom);
-  
-var nodeWidth = 200;
-var nodeHeight = 200;
-
-var graph = {
-  "nodes": [
-    {"id": "aa", "fx": 100, "fy": 900, selected: false, bgColor: '#FF8C00',  width: nodeWidth, height: nodeHeight},
-    {"id": "bb", "fx": 90, "fy": 500, selected: true, bgColor: '#FA8072',  width: nodeWidth+20, height: nodeHeight},
-    {"id": "cc", "fx": 100, "fy": 100, selected: false, bgColor: '#FA8072',  width: nodeWidth, height: nodeHeight}
-  ]
-};
-
-graph.links = [
-  { "id": "0-1", "source": graph.nodes[0], "target": graph.nodes[1], "connectionToSource": false, "connectionToTarget": true},
-  { "id": "1-2", "source": graph.nodes[1], "target": graph.nodes[2], "connectionToSource": false, "connectionToTarget": true}
-];
-
-function getGraphBox() {
-  if (graph.nodes.length === 0) {
-    return {minX: 0, minY: 0, maxX: 0, maxY: 0};
-  }
-  
-  var minX = graph.nodes[0].fx;
-  var minY = graph.nodes[0].fy;
-    
-  var maxX = minX + graph.nodes[0].width;
-  var maxY = minY + graph.nodes[0].height;
-  
-  if (graph.nodes.length > 1) {
-    
-    for(var i = 1; i < graph.nodes.length; i++) {
-      if (graph.nodes[i].fx < minX) {
-        minX = graph.nodes[i].fx;
+    function createComponentsSelectorByIDs(nodeIDs) {
+      if (!nodeIDs || nodeIDs.length === 0) {
+        return '';
       }
-      if (graph.nodes[i].fy < minY) {
-        minY = graph.nodes[i].fy;
+
+      var resultSelector = '';
+      var nodesCount = nodeIDs.length;
+      for (var i = 0; i < nodesCount; i++) {
+        resultSelector += '#' + nodeIDs[i];
+        if (i < nodesCount - 1) {
+          resultSelector += ',';
+        }
       }
-      
-      if ((graph.nodes[i].fx + graph.nodes[i].width) > maxX) {
-        maxX = graph.nodes[i].fx + graph.nodes[i].width;
-      }
-      if ((graph.nodes[i].fy + graph.nodes[i].height) > maxY) {
-        maxY = graph.nodes[i].fy + graph.nodes[i].height;
+
+      return resultSelector;
+    }
+
+    //////////// ZOOM ////////////
+    //add zoom capabilities
+    var zoom = d3.zoom().on("zoom", zooming);
+
+    function customZoom(value) {
+      if (value > 0) {
+        zoom.scaleBy(svg.transition(), 1.2);
+      } else {
+        zoom.scaleBy(svg.transition(), 0.8);
       }
     }
-  }
 
-  return {minX: minX, minY: minY, maxX: maxX, maxY: maxY};
-}
+    function zooming() {
+      // Enables the possibility to drag around the whole SVG content and of course the zooming functionality.
+      currentTransformation.scale = d3.event.transform.k;
+      currentTransformation.translateX = d3.event.transform.x;
+      currentTransformation.translateY = d3.event.transform.y;
 
-
-function fitContent() {  
-  // At first fit the content.
-  var resultTransformation = getFitContentTransformation(currentTransformation);
-
-  // Then center the content.
-  var resultTransformation = getCenterContentTransformation(resultTransformation);
-
-  // var resultTransformation = {translateX: 0, translateY: 0, scale: 1};
-  
-  svg.transition()
-     .call(
-        zoom.transform,
-        d3.zoomIdentity.translate(resultTransformation.translateX, resultTransformation.translateY)
-                        .scale(resultTransformation.scale)
-     );
-}
-
-
-function getCenterContentTransformation(currentTransformation) {
-  var graphBox = getGraphBox();
-  
-  // Get the middle point of the two extremes.
-  // MidX = (x1 + x2) / 2;
-  // MidY = (y1 + y2) / 2;
-  var graphCenterX = (graphBox.minX + graphBox.maxX) * 0.5 * currentTransformation.scale;
-  var graphCenterY = (graphBox.minY + graphBox.maxY) * 0.5 * currentTransformation.scale;
- 
-  // Get the SVG container middle point.
-  var svgMidX = width * 0.5;
-  var svgMidY = height * 0.5;
-  
-  // Get the difference vector between the graph's middle point and the SVG container's middle point.
-  var diffX = svgMidX - graphCenterX;
-  var diffY = svgMidY - graphCenterY;
-  
-  return {translateX: diffX, translateY: diffY, scale: currentTransformation.scale};
-}
-
-function getFitContentTransformation(currentTransformation) {
-  var graphBox = getGraphBox();
-  
-  var graphWidth = graphBox.maxX - graphBox.minX;
-  graphWidth += fitContentPadding;
-  var graphHeight = graphBox.maxY - graphBox.minY;
-  graphHeight += fitContentPadding;
-  
-  var svgAspectRatio = width / height;
-  var graphAspectRatio = graphWidth / graphHeight;
-    
-  var newScale = currentTransformation.scale;
-  
-  if (graphAspectRatio > svgAspectRatio) {
-    newScale =  width / graphWidth;
-  }else if (graphAspectRatio < svgAspectRatio) {
-    newScale = height / graphHeight;
-  }
-  
-    return {translateX: currentTransformation.translateX, translateY: currentTransformation.translateY, scale: newScale};
-}
-
-fitContent();
-
-graph.node = function(id) {
-  if(!this.nmap) {
-    this.nmap = { };
-    for(var i=0; i < this.nodes.length; i++) {
-      var node = this.nodes[i];
-      this.nmap[node.id] = node;
+      allGroup.attr("transform", d3.event.transform);
     }
-  }
-  return this.nmap[id];
-};
 
-graph.mid = function(id) {
-  var node = this.node(id);
-  var x = node.width * 0.5 + node.x,
-      y = node.height * 0.5 + node.y;
-  return { x: x, y: y };
-}
+    // Enable zoom
+    svg.call(zoom);
+
+    var nodeWidth = 200;
+    var nodeHeight = 150;
+
+    var graph = {
+      "nodes": [
+        { "id": "aa", "fx": 100, "fy": 100, selected: false, width: 200, height: 75 },
+        { "id": "bb", "fx": 490, "fy": 100, selected: true, width: nodeWidth + 20, height: nodeHeight },
+        { "id": "cc", "fx": 900, "fy": 100, selected: false, width: 200, height: 75 },
+        { "id": "dd", "fx": 1200, "fy": 100, selected: false, width: 200, height: 75 }
+      ]
+    };
+
+    graph.links = [
+      { "id": "0-1", "source": graph.nodes[0], "target": graph.nodes[1], "connectionToSource": false, "connectionToTarget": true },
+      { "id": "1-2", "source": graph.nodes[1], "target": graph.nodes[2], "connectionToSource": false, "connectionToTarget": true },
+      { "id": "2-3", "source": graph.nodes[2], "target": graph.nodes[3], "connectionToSource": false, "connectionToTarget": true }
+    ];
+
+    function getGraphBox() {
+      if (graph.nodes.length === 0) {
+        return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+      }
+
+      var minX = graph.nodes[0].fx;
+      var minY = graph.nodes[0].fy;
+
+      var maxX = minX + graph.nodes[0].width;
+      var maxY = minY + graph.nodes[0].height;
+
+      if (graph.nodes.length > 1) {
+
+        for (var i = 1; i < graph.nodes.length; i++) {
+          if (graph.nodes[i].fx < minX) {
+            minX = graph.nodes[i].fx;
+          }
+          if (graph.nodes[i].fy < minY) {
+            minY = graph.nodes[i].fy;
+          }
+
+          if ((graph.nodes[i].fx + graph.nodes[i].width) > maxX) {
+            maxX = graph.nodes[i].fx + graph.nodes[i].width;
+          }
+          if ((graph.nodes[i].fy + graph.nodes[i].height) > maxY) {
+            maxY = graph.nodes[i].fy + graph.nodes[i].height;
+          }
+        }
+      }
+
+      return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+    }
 
 
-//////////// FORCE SIMULATION //////////// 
-// values for all forces
-var forceProperties = {
-    center: {
+    function fitContent() {
+      // At first fit the content.
+      var resultTransformation = getFitContentTransformation(currentTransformation);
+
+      // Then center the content.
+      var resultTransformation = getCenterContentTransformation(resultTransformation);
+
+      // var resultTransformation = {translateX: 0, translateY: 0, scale: 1};
+
+      svg.transition()
+        .call(
+          zoom.transform,
+          d3.zoomIdentity.translate(resultTransformation.translateX, resultTransformation.translateY)
+            .scale(resultTransformation.scale)
+        );
+    }
+
+
+    function getCenterContentTransformation(currentTransformation) {
+      var graphBox = getGraphBox();
+
+      // Get the middle point of the two extremes.
+      // MidX = (x1 + x2) / 2;
+      // MidY = (y1 + y2) / 2;
+      var graphCenterX = (graphBox.minX + graphBox.maxX) * 0.5 * currentTransformation.scale;
+      var graphCenterY = (graphBox.minY + graphBox.maxY) * 0.5 * currentTransformation.scale;
+
+      // Get the SVG container middle point.
+      var svgMidX = width * 0.5;
+      var svgMidY = height * 0.5;
+
+      // Get the difference vector between the graph's middle point and the SVG container's middle point.
+      var diffX = svgMidX - graphCenterX;
+      var diffY = svgMidY - graphCenterY;
+
+      return { translateX: diffX, translateY: diffY, scale: currentTransformation.scale };
+    }
+
+    function getFitContentTransformation(currentTransformation) {
+      var graphBox = getGraphBox();
+
+      var graphWidth = graphBox.maxX - graphBox.minX;
+      graphWidth += fitContentPadding;
+      var graphHeight = graphBox.maxY - graphBox.minY;
+      graphHeight += fitContentPadding;
+
+      var svgAspectRatio = width / height;
+      var graphAspectRatio = graphWidth / graphHeight;
+
+      var newScale = currentTransformation.scale;
+
+      if (graphAspectRatio > svgAspectRatio) {
+        newScale = width / graphWidth;
+      } else if (graphAspectRatio < svgAspectRatio) {
+        newScale = height / graphHeight;
+      }
+
+      return { translateX: currentTransformation.translateX, translateY: currentTransformation.translateY, scale: newScale };
+    }
+
+    fitContent();
+
+    graph.node = function (id) {
+      if (!this.nmap) {
+        this.nmap = {};
+        for (var i = 0; i < this.nodes.length; i++) {
+          var node = this.nodes[i];
+          this.nmap[node.id] = node;
+        }
+      }
+      return this.nmap[id];
+    };
+
+    graph.mid = function (id) {
+      var node = this.node(id);
+      var x = node.width * 0.5 + node.x,
+        y = node.height * 0.5 + node.y;
+      return { x: x, y: y };
+    }
+
+
+    //////////// FORCE SIMULATION ////////////
+    // values for all forces
+    var forceProperties = {
+      center: {
         x: 0.5,
         y: 0.5
-    },
-    collide: {
+      },
+      collide: {
         enabled: true,
         strength: .7,
         iterations: 1,
         radius: nodeWidth
-    },
-    link: {
+      },
+      link: {
         enabled: true,
         distance: 150,
         iterations: 1
+      }
+    };
+
+    // force simulator
+    var simulation = d3.forceSimulation();
+    initializeForces();
+    updateForces();
+
+    update();
+
+    // add forces to the simulation
+    function initializeForces() {
+      // add forces and associate each with a name
+      simulation.force("link", d3.forceLink().id(function (d) { return d.id; })).force("collide", d3.forceCollide()).force("center", d3.forceCenter());
     }
-};
 
-// force simulator
-var simulation = d3.forceSimulation();
-initializeForces();
-updateForces();
+    // apply new force properties
+    function updateForces() {
+      // get each force by name and update the properties
+      simulation.force("center").x(width * forceProperties.center.x).y(height * forceProperties.center.y);
+      simulation.force("collide").strength(forceProperties.collide.strength * forceProperties.collide.enabled).radius(forceProperties.collide.radius).iterations(forceProperties.collide.iterations);
+      simulation.force("link").distance(forceProperties.link.distance).iterations(forceProperties.link.iterations).links(forceProperties.link.enabled ? graph.links : []);
+    }
 
-update();
+    function restartSimulation() {
+      // Redefine and restart simulation
+      simulation.nodes(graph.nodes).on("tick", ticked);
+      simulation.force("link").links(graph.links);
+      // restarts the simulation (important if simulation has already slowed down)
+      simulation.alpha(0.3).restart();
+    }
 
-// add forces to the simulation
-function initializeForces() {
-    // add forces and associate each with a name
-    simulation.force("link", d3.forceLink().id(function(d) { return d.id; })).force("collide", d3.forceCollide()).force("center", d3.forceCenter());
-}
+    function update() {
+      updateLinks();
+      updateNodes();
 
-// apply new force properties
-function updateForces() {
-    // get each force by name and update the properties
-    simulation.force("center").x(width * forceProperties.center.x).y(height * forceProperties.center.y);
-    simulation.force("collide").strength(forceProperties.collide.strength * forceProperties.collide.enabled).radius(forceProperties.collide.radius).iterations(forceProperties.collide.iterations);
-    simulation.force("link").distance(forceProperties.link.distance).iterations(forceProperties.link.iterations).links(forceProperties.link.enabled ? graph.links : []);
-}
+      restartSimulation();
+    }
 
-function restartSimulation() {
-  // Redefine and restart simulation
-  simulation.nodes(graph.nodes).on("tick", ticked);
-  simulation.force("link").links(graph.links);
-  // restarts the simulation (important if simulation has already slowed down)
-  simulation.alpha(0.3).restart();
-}
+    function updateNodes() {
+      nodes = nodesGroup.selectAll('.node-container').data(graph.nodes, function (d) { return d.id; });
 
-function update() {
-  updateLinks();
-  updateNodes();  
-  
-  restartSimulation();
-}
+      nodes.exit().remove();
 
-function updateNodes() {
-  nodes = nodesGroup.selectAll('.node-container').data(graph.nodes, function(d) {return d.id;});
-  
-  nodes.exit().remove();
-  
-  var nodeEnter = nodes.enter();
-  nodeEnter = addNodes(nodeEnter);
-  
-  nodes = nodeEnter.merge(nodes);
-}
+      var nodeEnter = nodes.enter();
 
-function addLinks(enterSelection) {
-  
-  // Add the link's container
-  const linksContainerSelection = enterSelection.append('g')
-    .classed('link-container', true);
-  
-  const linksSelection = linksContainerSelection.append("line")
-    .classed('link', true)
-    .attr('data-start', function(d) {return d.source.id})
-    .attr('data-stop', function(d) {return d.target.id})
-    .attr('marker-start', function(d) { return (d.connectionToSource) ? 'url(#arrow-start)': '' })
-    .attr('marker-end', function(d) { return (d.connectionToTarget) ? 'url(#arrow-end)': '' });
-  
-  return linksContainerSelection;
-}
+      nodeEnter = addNodes(nodeEnter);
 
-function addNodes(enterSelection) {
+      nodes = nodeEnter.merge(nodes);
+    }
 
-  // Add the node's container
-  const nodesContainerSelection = enterSelection.append('g')
-    .attr("transform", function(d) {
-      const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
-      const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
-      return "translate(" + positionToUseX + "," + positionToUseY + ")"; 
-    })
-  .classed('node-container', true)
-  .on('click', (d, i) => {
-    let e = document.getElementById('data');
+    function addLinks(enterSelection) {
 
-    e.innerHTML = JSON.stringify(d);
-  })
-  .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended));
-    
-  nodesContainerSelection.append("rect")
-    .attr('id', function(d) {return d.id})
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('width', function(d) { return d.width; })
-    .attr('height', function(d) { return d.height; })
-    .attr('pointer-events', 'visible')
-    .classed('node', true);
-      
-  return nodesContainerSelection;
-}
+      // Add the link's container
+      const linksContainerSelection = enterSelection.append('g')
+        .classed('link-container', true);
 
-function updateLinks() {
-  links = linksGroup.selectAll('.link-container').data(graph.links, function(d) {return d.id;});
+      const linksSelection = linksContainerSelection.append("line")
+        .classed('link', true)
+        .attr('data-start', function (d) { return d.source.id })
+        .attr('data-stop', function (d) { return d.target.id })
+        .attr('marker-start', function (d) { return (d.connectionToSource) ? 'url(#arrow-start)' : '' })
+        .attr('marker-end', function (d) { return (d.connectionToTarget) ? 'url(#arrow-end)' : '' });
 
-  links.exit().remove();
+      return linksContainerSelection;
+    }
 
-  var linkEnter = links.enter();
-  linkEnter = addLinks(linkEnter);
-  
-  links = linkEnter.merge(links);
-}
-
-
-// update the display positions after each simulation tick
-function ticked() {
-  
-    links.selectAll('.link').each(function (data) {
-      
-        const intersection = getIntersection(data.source, data.target);
-        
-        d3.select(this).attr("x1", function() { 
-            var calculatedEndX = calculateNodeCenterX(data.source.x);
-            if (intersection) {
-              calculatedEndX = intersection.x1;
-            }
-            
-            return calculatedEndX;
-          }).attr("y1", function() { 
-            var calculatedEndX = calculateNodeCenterY(data.source.y);
-            if (intersection) {
-              calculatedEndX = intersection.y1;
-            }
-            
-            return calculatedEndX;
-          }).attr("x2", function() { 
-            var calculatedEndX = calculateNodeCenterX(data.target.x);
-            if (intersection) {
-              calculatedEndX = intersection.x2;
-            }
-            
-            return calculatedEndX;
-          }).attr("y2", function() { 
-            var calculatedEndY = calculateNodeCenterY(data.target.y);
-            if (intersection) {
-              calculatedEndY = intersection.y2;
-            }
-            
-            return calculatedEndY;
-          });
-      });
-          
-    nodes.classed('selected', function(d) { return d.selected; })
-          .attr("transform", function(d) { 
+    function addNodes(enterSelection) {
+      const nodesContainerSelection =
+        enterSelection
+          .append('g')
+          .attr("transform", function (d) {
             const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
             const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
 
             return "translate(" + positionToUseX + "," + positionToUseY + ")";
-          });   
-}
+          })
+          .on('click', onNodeClick)
+          .classed('node-container', true)
+          .classed('selected', function (d) { return d.selected; })
+          .call(
+            d3.drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended)
+          );
+
+      nodesContainerSelection.append("rect")
+        .attr('id', function (d) { return d.id })
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', function (d) { return d.width; })
+        .attr('height', function (d) { return d.height; })
+        .attr('pointer-events', 'visible')
+        .classed('node', true);
+
+      let data = nodesContainerSelection
+        .append('g')
+        .classed('data', true)
+
+      data.append('text')
+        .attr('transform', `translate(70, 30)`)
+        .classed('value', true)
+        .text('FName');
+
+      data.append('text')
+        .attr('transform', `translate(70, 50)`)
+        .classed('label', true)
+        .text('Tabular Column')
+
+      let icon = nodesContainerSelection
+        .append('g')
+        .attr("transform", `translate(20,20)`);
+
+      icon.append('path')
+        .attr('d', 'M40.4145 17.5L30.3109 35H10.1036L0 17.5L10.1036 0H30.3109L40.4145 17.5Z')
+        .attr('fill', '#5C82EB');
+      icon.append('path')
+        .attr('d', 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z')
+        .attr('fill', '#ffffff');
+
+      let pin = nodesContainerSelection
+        .append('path')
+        .classed('pin', true)
+        .attr('d', (d) => {
+          if (d.selected) {
+            return 'M7 2h10v2l-2 1v5l3 3v3h-5v4l-1 3l-1-3v-4H6v-3l3-3V5L7 4z';
+          }
+        })
+        .attr('transform', (d) => {
+          let x = d.width - 30;
+          let y = 10;
+
+          return `translate(${x} ${y}) rotate(30 0 0)`;
+        });
+
+      return nodesContainerSelection;
+    }
+
+    function updateLinks() {
+      links = linksGroup.selectAll('.link-container').data(graph.links, function (d) { return d.id; });
+
+      links.exit().remove();
+
+      var linkEnter = links.enter();
+      linkEnter = addLinks(linkEnter);
+
+      links = linkEnter.merge(links);
+    }
 
 
-////////////// MODEL //////////////
-function deselectAllNodes() {
-  d3.selectAll('.node-container').classed('selected', false);
-  
-  graph.nodes.forEach(function(data) {
-    data.selected = false;
-  });
-}
+    // update the display positions after each simulation tick
+    function ticked() {
 
-//////////// UI EVENTS ////////////
+      links.selectAll('.link').each(function (data) {
 
+        const intersection = getIntersection(data.source, data.target);
 
-function click(d) {
-  if (d3.event.defaultPrevented)
-  {
-    return;
-  }
+        d3.select(this).attr("x1", function () {
+          var calculatedEndX = calculateNodeCenterX(data.source.x);
+          if (intersection) {
+            calculatedEndX = intersection.x1;
+          }
 
-  deselectAllNodes();
-  
-  if (!d.selected) {
-    d.selected = true;
-    d3.select(this).classed('selected', function(d) { return d.selected; });
-  }
-  
-  d3.event.preventDefault();
-}
+          return calculatedEndX;
+        }).attr("y1", function () {
+          var calculatedEndX = calculateNodeCenterY(data.source.y);
+          if (intersection) {
+            calculatedEndX = intersection.y1;
+          }
 
-function dragstarted(d) {
-  if (!d3.event.active) {  
-    // "reheat" the simulation.
-    // The alphaTarget controls how quickly the simulation returns to equilibrium.
-    // Lower values means that the simulation returns slower and higher values means that it returns quicker.
-    // Setting it below the minimum alpha of 0.01 means that the graph gets “stuck” and the nodes don’t update further.
-    simulation.alphaTarget(0.3).restart();
-  }
-  
-  // Set the fixed position values, to make the node "sticky".
-  d.fx = d.x;
-  d.fy = d.y;
-}
+          return calculatedEndX;
+        }).attr("x2", function () {
+          var calculatedEndX = calculateNodeCenterX(data.target.x);
+          if (intersection) {
+            calculatedEndX = intersection.x2;
+          }
 
-function dragged(d) {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
-}
+          return calculatedEndX;
+        }).attr("y2", function () {
+          var calculatedEndY = calculateNodeCenterY(data.target.y);
+          if (intersection) {
+            calculatedEndY = intersection.y2;
+          }
 
-function dragended(d) {
-  if (!d3.event.active) { 
-    // The alphaTarget controls how quickly the simulation returns to equilibrium.
-    // Setting this to a value higher than 0.01 ensures that the simulation will keep slowly ticking away.
-    simulation.alphaTarget(1);
-  }
-  
-  d.x = d.fx;
-  d.y = d.fy;
-}
+          return calculatedEndY;
+        });
+      });
+
+      nodes.attr("transform", function (d) {
+              const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
+              const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
+
+              return "translate(" + positionToUseX + "," + positionToUseY + ")";
+            });
+    }
 
 
-// update size-related forces
-d3.select(window).on("resize", function(){
-    width = +svg.node().getBoundingClientRect().width;
-    height = +svg.node().getBoundingClientRect().height;
-    updateForces();
-});
+    ////////////// MODEL //////////////
+    // function deselectAllNodes() {
+    //   d3.selectAll('.node-container').classed('selected', false);
 
-// convenience function to update everything (run after UI input)
-function updateAll() {
-    updateForces();
-    updateDisplay();
-}
+    //   graph.nodes.forEach(function(data) {
+    //     data.selected = false;
+    //   });
+    // }
 
-function calculateNodeCenterX(nodeX) {
-  return nodeX + (50 + 2 * 10) / 2;
-};
-
-function calculateNodeCenterY(nodeY) {
-  return nodeY + (50 + 2 * 10) / 2;
-}
+    //////////// UI EVENTS ////////////
 
 
+    // function click(d) {
+    //   if (d3.event.defaultPrevented)
+    //   {
+    //     return;
+    //   }
 
-////////////// LINE INTERSECTION STUFF /////////////////
-function Point(x, y) {
-  if (!(this instanceof Point)) {
-    return new Point(x, y);
-  }
-  this.x = x;
-  this.y = y;
-}
-Point.add = function (a, b) {
-  return Point(a.x + b.x, a.y + b.y);
-}
-Point.sub = function (a, b) {
-  return Point(a.x - b.x, a.y - b.y);
-}
-Point.cross = function (a, b) {
-  return a.x * b.y - a.y * b.x;
-}
-Point.scale = function (a, k) {
-  return Point(a.x * k, a.y * k);
-}
-Point.unit = function (a) {
-  return Point.scale(a, 1 / Point.magnitude(a));
-}
-Point.magnitude = function (a) {
-  return Math.sqrt(a.x * a.x + a.y * a.y);
-}
-Point.eq = function (a, b) {
-  return Math.abs(a.x - b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6;
-}
+    //   deselectAllNodes();
 
-function pointInSegment(s, p) {
-  var a = s[0];
-  var b = s[1];
-  return Math.abs(Point.cross(Point.sub(p, a), Point.sub(b, a))) < 1e-6 && Math.min(a.x, b.x) <= p.x && p.x <= Math.max(a.x, b.x) && Math.min(a.y, b.y) <= p.y && p.y <= Math.max(a.y, b.y);
-}
+    //   if (!d.selected) {
+    //     d.selected = true;
+    //     d3.select(this).classed('selected', function(d) { return d.selected; });
+    //   }
 
-function lineLineIntersection(s1, s2) {
-  var a = s1[0];
-  var b = s1[1];
-  var c = s2[0];
-  var d = s2[1];
-  var v1 = Point.sub(b, a);
-  var v2 = Point.sub(d, c);
-  if (Math.abs(Point.cross(v1, v2)) < 1e-6) {
-    // collinear
-    return null;
-  }
-  var kNum = Point.cross(
-    Point.sub(c, a),
-    Point.sub(d, c)
-  );
-  var kDen = Point.cross(
-    Point.sub(b, a),
-    Point.sub(d, c)
-  );
-  var ip = Point.add(
-    a,
-    Point.scale(
-      Point.sub(b, a),
-      Math.abs(kNum / kDen)
-    )
-  );
-  return ip;
-}
+    //   d3.event.preventDefault();
+    // }
 
-function segmentSegmentIntersection(s1, s2) {
-  var ip = lineLineIntersection(s1, s2);
-  if (ip && pointInSegment(s1, ip) && pointInSegment(s2, ip)) {
-    return ip;
-  }
-}
+    function dragstarted(d) {
+      if (!d3.event.active) {
+        // "reheat" the simulation.
+        // The alphaTarget controls how quickly the simulation returns to equilibrium.
+        // Lower values means that the simulation returns slower and higher values means that it returns quicker.
+        // Setting it below the minimum alpha of 0.01 means that the graph gets “stuck” and the nodes don’t update further.
+        simulation.alphaTarget(0.3).restart();
+      }
 
-function boxSegmentIntersection(box, lineSegment) {
-  var topLeft = Point(box.x, box.y);
-  var topRight = Point(box.x + box.width, box.y);
-  var botLeft = Point(box.x, box.y + box.height);
-  var botRight = Point(box.x + box.width, box.y + box.height);
-  var boxSegments = [
-    // top
-    [topLeft, topRight],
-    // bot
-    [botLeft, botRight],
-    // left
-    [topLeft, botLeft],
-    // right
-    [topRight, botRight]
-  ];
-  var ip;
-  for (var i = 0; !ip && i < 4; i += 1) {
-    ip = segmentSegmentIntersection(boxSegments[i], lineSegment);
-  }
-  return ip;
-}
+      // Set the fixed position values, to make the node "sticky".
+      d.fx = d.x;
+      d.fy = d.y;
+    }
 
-function boxCenter(a) {  
-  return Point(
-    a.x + a.width / 2,
-    a.y + a.height / 2
-  );
-}
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
 
-function buildSegmentThroughCenters(a, b) {
-  return [boxCenter(a), boxCenter(b)];
-}
+    function dragended(d) {
+      if (!d3.event.active) {
+        // The alphaTarget controls how quickly the simulation returns to equilibrium.
+        // Setting this to a value higher than 0.01 ensures that the simulation will keep slowly ticking away.
+        simulation.alphaTarget(1);
+      }
 
-// should return {x1, y1, x2, y2}
-function getIntersection(a, b) {
-  var segment = buildSegmentThroughCenters(a, b);
-  var ia = boxSegmentIntersection(a, segment);
-  var ib = boxSegmentIntersection(b, segment);
-  if (ia && ib && !Point.eq(ia, ib)) {
+      d.x = d.fx;
+      d.y = d.fy;
+    }
 
-    // problem: the arrows are drawn after the intersection with the box
-    // solution: move the arrow toward the other end
 
-    var unitV = Point.unit(Point.sub(ib, ia));
-    // k = the width of the marker
-    var k = 18;
-    ib = Point.sub(ib, Point.scale(unitV, k));
+    // update size-related forces
+    d3.select(window).on("resize", function () {
+      width = +svg.node().getBoundingClientRect().width;
+      height = +svg.node().getBoundingClientRect().height;
+      updateForces();
+    });
 
-    return {
-      x1: ia.x,
-      y1: ia.y,
-      x2: ib.x,
-      y2: ib.y
-    }  
-  }
-}
-</script>
+    // convenience function to update everything (run after UI input)
+    function updateAll() {
+      updateForces();
+      updateDisplay();
+    }
 
-  </body>
+    function calculateNodeCenterX(nodeX) {
+      return nodeX + (50 + 2 * 10) / 2;
+    };
+
+    function calculateNodeCenterY(nodeY) {
+      return nodeY + (50 + 2 * 10) / 2;
+    }
+
+
+
+    ////////////// LINE INTERSECTION STUFF /////////////////
+    function Point(x, y) {
+      if (!(this instanceof Point)) {
+        return new Point(x, y);
+      }
+      this.x = x;
+      this.y = y;
+    }
+    Point.add = function (a, b) {
+      return Point(a.x + b.x, a.y + b.y);
+    }
+    Point.sub = function (a, b) {
+      return Point(a.x - b.x, a.y - b.y);
+    }
+    Point.cross = function (a, b) {
+      return a.x * b.y - a.y * b.x;
+    }
+    Point.scale = function (a, k) {
+      return Point(a.x * k, a.y * k);
+    }
+    Point.unit = function (a) {
+      return Point.scale(a, 1 / Point.magnitude(a));
+    }
+    Point.magnitude = function (a) {
+      return Math.sqrt(a.x * a.x + a.y * a.y);
+    }
+    Point.eq = function (a, b) {
+      return Math.abs(a.x - b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6;
+    }
+
+    function pointInSegment(s, p) {
+      var a = s[0];
+      var b = s[1];
+      return Math.abs(Point.cross(Point.sub(p, a), Point.sub(b, a))) < 1e-6 && Math.min(a.x, b.x) <= p.x && p.x <= Math.max(a.x, b.x) && Math.min(a.y, b.y) <= p.y && p.y <= Math.max(a.y, b.y);
+    }
+
+    function lineLineIntersection(s1, s2) {
+      var a = s1[0];
+      var b = s1[1];
+      var c = s2[0];
+      var d = s2[1];
+      var v1 = Point.sub(b, a);
+      var v2 = Point.sub(d, c);
+      if (Math.abs(Point.cross(v1, v2)) < 1e-6) {
+        // collinear
+        return null;
+      }
+      var kNum = Point.cross(
+        Point.sub(c, a),
+        Point.sub(d, c)
+      );
+      var kDen = Point.cross(
+        Point.sub(b, a),
+        Point.sub(d, c)
+      );
+      var ip = Point.add(
+        a,
+        Point.scale(
+          Point.sub(b, a),
+          Math.abs(kNum / kDen)
+        )
+      );
+      return ip;
+    }
+
+    function segmentSegmentIntersection(s1, s2) {
+      var ip = lineLineIntersection(s1, s2);
+      if (ip && pointInSegment(s1, ip) && pointInSegment(s2, ip)) {
+        return ip;
+      }
+    }
+
+    function boxSegmentIntersection(box, lineSegment) {
+      var topLeft = Point(box.x, box.y);
+      var topRight = Point(box.x + box.width, box.y);
+      var botLeft = Point(box.x, box.y + box.height);
+      var botRight = Point(box.x + box.width, box.y + box.height);
+      var boxSegments = [
+        // top
+        [topLeft, topRight],
+        // bot
+        [botLeft, botRight],
+        // left
+        [topLeft, botLeft],
+        // right
+        [topRight, botRight]
+      ];
+      var ip;
+      for (var i = 0; !ip && i < 4; i += 1) {
+        ip = segmentSegmentIntersection(boxSegments[i], lineSegment);
+      }
+      return ip;
+    }
+
+    function boxCenter(a) {
+      return Point(
+        a.x + a.width / 2,
+        a.y + a.height / 2
+      );
+    }
+
+    function buildSegmentThroughCenters(a, b) {
+      return [boxCenter(a), boxCenter(b)];
+    }
+
+    // should return {x1, y1, x2, y2}
+    function getIntersection(a, b) {
+      var segment = buildSegmentThroughCenters(a, b);
+      var ia = boxSegmentIntersection(a, segment);
+      var ib = boxSegmentIntersection(b, segment);
+      if (ia && ib && !Point.eq(ia, ib)) {
+
+        // problem: the arrows are drawn after the intersection with the box
+        // solution: move the arrow toward the other end
+
+        var unitV = Point.unit(Point.sub(ib, ia));
+        // k = the width of the marker
+        var k = 18;
+        ib = Point.sub(ib, Point.scale(unitV, k));
+
+        return {
+          x1: ia.x,
+          y1: ia.y,
+          x2: ib.x,
+          y2: ib.y
+        }
+      }
+    }
+  </script>
+
+</body>
+
 </html>
