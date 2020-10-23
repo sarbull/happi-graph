@@ -155,7 +155,8 @@
           fy: 100,
           selected: false,
           width: 200,
-          height: 75
+          height: 75,
+          type: 'TYPE1'
         },
         {
           id: 'bb',
@@ -163,7 +164,8 @@
           fy: 100,
           selected: true,
           width: nodeWidth + 20,
-          height: nodeHeight
+          height: nodeHeight,
+          type: 'TYPE1'
         },
         {
           id: 'cc',
@@ -171,7 +173,8 @@
           fy: 100,
           selected: false,
           width: 200,
-          height: 75
+          height: 75,
+          type: 'TYPE2'
         },
         {
           id: 'dd',
@@ -179,7 +182,8 @@
           fy: 100,
           selected: false,
           width: 200,
-          height: 75
+          height: 75,
+          type: 'TYPE1'
         }
       ]
     };
@@ -383,29 +387,61 @@
     update();
 
     function updateNodes() {
-      nodes = nodesGroup.selectAll('.node-container').data(graph.nodes, function (d) { return d.id; });
+      nodes =
+        nodesGroup
+          .selectAll('.node-container')
+          .data(graph.nodes, (d) => d.id);
 
-      nodes.exit().remove();
+      nodes
+        .exit()
+        .remove();
 
-      var nodeEnter = nodes.enter();
+      let nodeEnter =
+        nodes
+          .enter();
 
       nodeEnter = addNodes(nodeEnter);
 
-      nodes = nodeEnter.merge(nodes);
+      nodes =
+        nodeEnter
+          .merge(nodes);
+    }
+
+    function updateLinks() {
+      links =
+        linksGroup
+          .selectAll('.link-container')
+          .data(graph.links, (d) => d.id);
+
+      links
+        .exit()
+        .remove();
+
+      let linkEnter =
+        links
+          .enter();
+
+      linkEnter = addLinks(linkEnter);
+
+      links =
+        linkEnter
+          .merge(links);
     }
 
     function addLinks(enterSelection) {
+      const linksContainerSelection =
+        enterSelection
+          .append('g')
+          .classed('link-container', true);
 
-      // Add the link's container
-      const linksContainerSelection = enterSelection.append('g')
-        .classed('link-container', true);
-
-      const linksSelection = linksContainerSelection.append("line")
-        .classed('link', true)
-        .attr('data-start', function (d) { return d.source.id })
-        .attr('data-stop', function (d) { return d.target.id })
-        .attr('marker-start', function (d) { return (d.connectionToSource) ? 'url(#arrow-start)' : '' })
-        .attr('marker-end', function (d) { return (d.connectionToTarget) ? 'url(#arrow-end)' : '' });
+      const linksSelection =
+        linksContainerSelection
+          .append('line')
+          .classed('link', true)
+          .attr('data-start', (d) => d.source.id)
+          .attr('data-stop', (d) => d.target.id)
+          .attr('marker-start', (d) => (d.connectionToSource) ? 'url(#arrow-start)' : '')
+          .attr('marker-end', (d) => (d.connectionToTarget) ? 'url(#arrow-end)' : '');
 
       return linksContainerSelection;
     }
@@ -457,12 +493,23 @@
         .append('g')
         .attr("transform", `translate(20,20)`);
 
+
       icon.append('path')
-        .attr('d', 'M40.4145 17.5L30.3109 35H10.1036L0 17.5L10.1036 0H30.3109L40.4145 17.5Z')
+        .attr('d', 'M38.9711 15C39.8643 16.547 39.8643 18.453 38.9711 20L31.7543 32.5C30.8611 34.047 29.2105 35 27.4241 35H12.9904C11.2041 35 9.55342 34.047 8.66025 32.5L1.44337 20C0.55021 18.453 0.550212 16.547 1.44338 15L8.66026 2.5C9.55342 0.952992 11.2041 0 12.9904 0H27.4241C29.2105 0 30.8611 0.952994 31.7543 2.5L38.9711 15Z')
         .attr('fill', '#5C82EB');
+
+      // TYPE1
       icon.append('path')
-        .attr('d', 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z')
-        .attr('fill', '#ffffff');
+        .attr('d', (d) => d.type === 'TYPE1' ? 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z' : '')
+        .attr('fill', (d) => d.type === 'TYPE1' ? '#ffffff' : '');
+
+      // TYPE2
+      icon.append('path')
+        .attr('d', (d) => d.type === 'TYPE1' ? 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z' : '')
+        .attr('fill', (d) => d.type === 'TYPE1' ? '#ffffff' : '');
+      icon.append('path')
+          .attr('d', (d) => d.type === 'TYPE2' ? 'M20 2.5H18.75V0H6.25V2.5H3.75V4.0625L3 5H1.25V7.1875L0 8.75V20H15L20 13.75V2.5ZM2.5 6.25H12.5V8.75H2.5V6.25ZM13.75 18.75H1.25V10H13.75V18.75ZM15 8.75H13.75V5H5V3.75H15V8.75ZM17.5 5.625L16.25 7.1875V2.5H7.5V1.25H17.5V5.625Z' : '')
+          .attr('fill', (d) => d.type === 'TYPE2' ? '#ffffff' : '');
 
       let pin = nodesContainerSelection
         .append('path')
@@ -482,16 +529,7 @@
       return nodesContainerSelection;
     }
 
-    function updateLinks() {
-      links = linksGroup.selectAll('.link-container').data(graph.links, function (d) { return d.id; });
 
-      links.exit().remove();
-
-      var linkEnter = links.enter();
-      linkEnter = addLinks(linkEnter);
-
-      links = linkEnter.merge(links);
-    }
 
 
     // update the display positions after each simulation tick
@@ -550,11 +588,11 @@
 
       nodes
         .attr('transform', (d) => {
-        const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
-        const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
+          const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
+          const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
 
-        return `translate(${positionToUseX},${positionToUseY})`;
-      });
+          return `translate(${positionToUseX},${positionToUseY})`;
+        });
     }
 
     function dragstart(d) {
