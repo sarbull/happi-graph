@@ -5,49 +5,48 @@
   <title>D3 Graph</title>
 
   <style>
-    .link-container {}
-
-    .link {
+    .link-container>.link {
       stroke: #000;
       stroke-width: 2px;
     }
-
-    .node-container>.node {
-      cursor: move;
-      fill: #fff;
-      stroke: #cccccc;
-      stroke-width: 1px;
-    }
-
-    .node-container>.data {
-      fill: #000000;
-      white-space: pre;
-      font-size: 14px;
-      letter-spacing: 0em;
-      cursor: move;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    .node-container>.data>.value {}
 
     .node-container>.pin {
       fill: #eb4b0b;
     }
 
-    .node-container>.data>.label {
-      /* font-weight: 400; */
-      fill: #AFAFAF;
-    }
-
-    .node {
-      cursor: move;
+    .node-container>.node {
       rx: 40;
       ry: 40;
+      fill: #fff;
+      stroke: #cccccc;
+      stroke-width: 1px;
     }
 
     .node-container.selected>.node {
       stroke-width: 4px;
       stroke: #eb4b0b;
+    }
+
+    .node-container>.header {
+      fill: #000000;
+      white-space: pre;
+      font-size: 14px;
+      letter-spacing: 0em;
+      cursor: default;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .node-container>.property {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      cursor: default;
+    }
+
+    .node-container>.header>.value {}
+
+    .node-container>.header>.label {
+      /* font-weight: bold; */
+      fill: #AFAFAF;
     }
   </style>
 </head>
@@ -82,7 +81,6 @@
   <hr>
 
   <code id="data" style="width:200px;"></code>
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js"></script>
 
@@ -156,7 +154,12 @@
           selected: false,
           width: 200,
           height: 75,
-          type: 'TYPE1'
+          type: 'vaadin:cogs',
+          label: 'Sub-Process',
+          value: 'FName Create',
+          properties: [
+            { label: 'key1', value: 'value' }
+          ]
         },
         {
           id: 'bb',
@@ -165,7 +168,13 @@
           selected: true,
           width: nodeWidth + 20,
           height: nodeHeight,
-          type: 'TYPE1'
+          type: 'vaadin:file',
+          label: 'Tabular Column',
+          value: 'FName',
+          properties: [
+            { label: 'key1', value: 'value' },
+            { label: 'key2', value: 'value 2' }
+          ]
         },
         {
           id: 'cc',
@@ -174,7 +183,9 @@
           selected: false,
           width: 200,
           height: 75,
-          type: 'TYPE2'
+          type: 'vaadin:cogs',
+          label: 'Sub-Process',
+          value: 'First Name Mappings'
         },
         {
           id: 'dd',
@@ -183,7 +194,9 @@
           selected: false,
           width: 200,
           height: 75,
-          type: 'TYPE1'
+          label: 'Tabular Column',
+          value: 'FName',
+          type: 'vaadin:cogs'
         }
       ]
     };
@@ -428,6 +441,117 @@
           .merge(links);
     }
 
+
+    function getPropertySvg(type) {
+      switch (type) {
+        case 'key1':
+          return [
+            'M27.71 9.29l-5-5A1 1 0 0 0 22 4H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V10a1 1 0 0 0-.29-.71zM12 6h8v4h-8zm8 20h-8v-8h8zm2 0v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8H6V6h4v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6.41l4 4V26z'
+          ];
+          break;
+        case 'key2':
+          return [
+            'M27.71 9.29l-5-5A1 1 0 0 0 22 4H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V10a1 1 0 0 0-.29-.71zM12 6h8v4h-8zm8 20h-8v-8h8zm2 0v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8H6V6h4v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6.41l4 4V26z'
+          ];
+          break;
+        default:
+          break;
+      }
+    }
+
+    function getSvgIcon(type) {
+      switch (type) {
+        case 'vaadin:cogs':
+          return [
+            'M15 8.75V6.25L13.5 5.75C13.375 5.375 13.25 4.875 13 4.5L13.75 3L11.875 1.375L10.5 2C10.125 1.75 9.75 1.625 9.25 1.5L8.75 0H6.25L5.75 1.5C5.375 1.625 4.875 1.75 4.5 2L3.125 1.375L1.375 3.125L2.125 4.625C1.875 5 1.75 5.375 1.625 5.875L0 6.25V8.75L1.5 9.25C1.625 9.625 1.75 10.125 2 10.5L1.375 11.875L3.125 13.625L4.625 12.875C5 13.125 5.375 13.25 5.875 13.375L6.25 15H8.75L9.25 13.5C9.625 13.375 10.125 13.25 10.5 13L12 13.75L13.75 12L13 10.5C13.25 10.125 13.375 9.75 13.5 9.25L15 8.75ZM3.75 7.5C3.75 5.375 5.375 3.75 7.5 3.75C9.625 3.75 11.25 5.375 11.25 7.5C11.25 9.625 9.625 11.25 7.5 11.25C5.375 11.25 3.75 9.625 3.75 7.5Z',
+            'M9.37619 7.50003C9.37602 7.99747 9.17825 8.47448 8.82639 8.82611C8.47452 9.17774 7.99738 9.37519 7.49994 9.37503C7.00249 9.37486 6.52548 9.17709 6.17385 8.82523C5.82222 8.47336 5.62477 7.99622 5.62494 7.49878C5.6251 7.00133 5.82287 6.52432 6.17474 6.17269C6.34896 5.99858 6.55578 5.86049 6.78337 5.76631C7.01096 5.67213 7.25488 5.6237 7.50119 5.62378C7.7475 5.62386 7.99138 5.67246 8.21891 5.76679C8.44644 5.86112 8.65316 5.99935 8.82727 6.17358C9.00138 6.3478 9.13947 6.55462 9.23365 6.78221C9.32784 7.0098 9.37627 7.25372 9.37619 7.50003Z',
+            'M20 3.75V2.5H19.25C19.25 2.25 19.125 2 19 1.875L19.5 1.375L18.625 0.5L18.125 1C17.875 0.875 17.75 0.75 17.5 0.75V0H16.25V0.75C16 0.75 15.75 0.875 15.625 1L15.125 0.5L14.25 1.375L14.75 1.875C14.625 2.125 14.5 2.25 14.5 2.5H13.75V3.75H14.5C14.5 4 14.625 4.25 14.75 4.375L14.25 4.875L15.125 5.75L15.625 5.25C15.875 5.375 16 5.5 16.25 5.5V6.25H17.5V5.5C17.75 5.5 18 5.375 18.125 5.25L18.625 5.75L19.5 4.875L19 4.375C19.125 4.125 19.25 4 19.25 3.75H20ZM16.875 4.375C16.125 4.375 15.625 3.875 15.625 3.125C15.625 2.375 16.125 1.875 16.875 1.875C17.625 1.875 18.125 2.375 18.125 3.125C18.125 3.875 17.625 4.375 16.875 4.375Z',
+            'M19.25 14.75C19.125 14.375 19 14 18.75 13.625L19.125 12.875L18.25 12L17.625 12.5C17.25 12.25 16.875 12.125 16.5 12L16.25 11.25H15L14.75 12C14.375 12.125 14 12.25 13.625 12.5L12.875 12.125L12 13L12.375 13.75C12.125 14.125 12 14.5 11.875 14.875L11.25 15V16.25L12 16.5C12.125 16.875 12.25 17.25 12.5 17.625L12.125 18.375L13 19.25L13.75 18.875C14.125 19.125 14.5 19.25 14.875 19.375L15 20H16.25L16.5 19.25C16.875 19.125 17.25 19 17.625 18.75L18.375 19.125L19.25 18.25L18.75 17.625C19 17.25 19.125 16.875 19.25 16.5L20 16.25V15L19.25 14.75ZM15.625 17.5C14.625 17.5 13.75 16.625 13.75 15.625C13.75 14.625 14.625 13.75 15.625 13.75C16.625 13.75 17.5 14.625 17.5 15.625C17.5 16.625 16.625 17.5 15.625 17.5Z'
+          ]
+        case 'vaadin:road-branches':
+          return [
+            'M20 3.75V0H0V3.75H2.125L11.75 15.625C13.375 17.625 15.625 18.75 18 18.75H20V15H18.125C16.875 15 15.75 14.375 14.75 13.25L13.125 11.25H20V7.5H10L7 3.75H20Z'
+          ];
+          break;
+        case 'vaadin:tab':
+          return [
+            'M0 0V15H20V0H0ZM16.25 11.25H15V7.5L11.25 11.25V8.75H3.75V6.25H11.25V3.75L15 7.5V3.75H16.25V11.25Z'
+          ];
+          break;
+        case 'vaadin:file':
+          return [
+            'M9.625 6.25H16.5V20H0V0H9.625V6.25ZM11 5V0L16.5 5H11Z'
+          ];
+          break;
+        case 'vaadin:ticket':
+          return [
+            'M17.5 0H2.5C2.5 1.375 1.375 2.5 0 2.5V10C1.375 10 2.5 11.125 2.5 12.5H17.5C17.5 11.125 18.625 10 20 10V2.5C18.625 2.5 17.5 1.375 17.5 0ZM16.25 11.25H3.75V1.25H16.25V11.25Z',
+            'M5 2.5H15V10H5V2.5Z'
+          ]
+        case 'vaadin:file-process':
+          return [
+            'M15 0H6.25V7.5H7.125L7.375 8.375L7.5 8.5V1.25H13.75V6.25H18.75V17.5H11.25L11.625 18.125L11 18.75H20V5L15 0ZM15 5V1.25L18.75 5H15Z',
+            'M6.875 14.375C6.875 14.7065 6.7433 15.0245 6.50888 15.2589C6.27446 15.4933 5.95652 15.625 5.625 15.625C5.29348 15.625 4.97554 15.4933 4.74112 15.2589C4.5067 15.0245 4.375 14.7065 4.375 14.375C4.375 14.0435 4.5067 13.7255 4.74112 13.4911C4.97554 13.2567 5.29348 13.125 5.625 13.125C5.95652 13.125 6.27446 13.2567 6.50888 13.4911C6.7433 13.7255 6.875 14.0435 6.875 14.375Z',
+            'M9.875 15.5L11.25 15V13.75L9.875 13.25C9.75 12.875 9.625 12.5 9.375 12.125L10 10.875L9.125 10L7.875 10.625C7.5 10.375 7.125 10.25 6.75 10.125L6.25 8.75H5L4.5 10.125C4.125 10.25 3.75 10.375 3.375 10.625L2.125 10L1.25 10.875L1.875 12.25C1.625 12.625 1.5 13 1.375 13.375L0 13.75V15L1.375 15.5C1.5 15.875 1.625 16.25 1.875 16.625L1.25 17.875L2.125 18.75L3.5 18.125C3.875 18.375 4.25 18.5 4.625 18.625L5 20H6.25L6.75 18.625C7.125 18.5 7.5 18.375 7.875 18.125L9.125 18.75L10 17.875L9.375 16.5C9.625 16.25 9.75 15.875 9.875 15.5ZM5.625 16.875C4.25 16.875 3.125 15.75 3.125 14.375C3.125 13 4.25 11.875 5.625 11.875C7 11.875 8.125 13 8.125 14.375C8.125 15.75 7 16.875 5.625 16.875Z'
+          ];
+        case 'vaadin:table':
+          return [
+            'M0 0V20H20V0H0ZM6.25 18.6667H1.25V16H6.25V18.6667ZM6.25 14.6667H1.25V12H6.25V14.6667ZM6.25 10.6667H1.25V8H6.25V10.6667ZM6.25 6.66667H1.25V4H6.25V6.66667ZM12.5 18.6667H7.5V16H12.5V18.6667ZM12.5 14.6667H7.5V12H12.5V14.6667ZM12.5 10.6667H7.5V8H12.5V10.6667ZM12.5 6.66667H7.5V4H12.5V6.66667ZM18.75 18.6667H13.75V16H18.75V18.6667ZM18.75 14.6667H13.75V12H18.75V14.6667ZM18.75 10.6667H13.75V8H18.75V10.6667ZM18.75 6.66667H13.75V4H18.75V6.66667Z'
+          ];
+        case 'vaadin:grid-h':
+          return [
+            'M0 0V20H20V0H0ZM6.25 18.75H1.25V1.25H6.25V18.75ZM12.5 18.75H7.5V1.25H12.5V18.75ZM18.75 18.75H13.75V1.25H18.75V18.75Z'
+          ];
+        case 'vaadin:records':
+          return [
+            'M5 11.25H10V13.75H5V11.25Z',
+            'M20 2.5H18.75V0H6.25V2.5H3.75V4.0625L3 5H1.25V7.1875L0 8.75V20H15L20 13.75V2.5ZM2.5 6.25H12.5V8.75H2.5V6.25ZM13.75 18.75H1.25V10H13.75V18.75ZM15 8.75H13.75V5H5V3.75H15V8.75ZM17.5 5.625L16.25 7.1875V2.5H7.5V1.25H17.5V5.625Z'
+          ]
+        default:
+          break;
+      }
+    }
+
+    function addIcon(node) {
+      node
+        .append('path')
+        .attr('transform', `translate(20,20)`)
+        .attr('d', 'M39.5566 15.2535C40.4498 16.8005 40.4498 18.7065 39.5566 20.2535L32.1934 33.007C31.3002 34.554 29.6496 35.507 27.8632 35.507H13.1368C11.3504 35.507 9.69979 34.554 8.80662 33.007L1.44338 20.2535C0.550211 18.7065 0.550212 16.8005 1.44338 15.2535L8.80662 2.5C9.69979 0.952994 11.3504 0 13.1368 0H27.8632C29.6496 0 31.3002 0.952994 32.1934 2.5L39.5566 15.2535Z')
+        .attr('fill', '#5C82EB');
+
+      node.each(function (d) {
+        d3.select(this)
+          .call(function (selection) {
+            let svgIconArray = getSvgIcon(d.type);
+
+            svgIconArray.forEach(i => {
+              selection
+                .append('path')
+                .attr('d', i)
+                .attr('transform', `translate(31,27)`)
+                .attr('fill', '#ffffff');
+            });
+          })
+      })
+    }
+
+    function isSelected(node) {
+      node
+        .append('path')
+        .classed('pin', true)
+        .attr('d', (d) => {
+          if (d.selected) {
+            return 'M7 2h10v2l-2 1v5l3 3v3h-5v4l-1 3l-1-3v-4H6v-3l3-3V5L7 4z';
+          }
+        })
+        .attr('transform', (d) => {
+          let x = d.width - 30;
+          let y = 10;
+
+          return `translate(${x} ${y}) rotate(30 0 0)`;
+        });
+    }
+
     function addLinks(enterSelection) {
       const linksContainerSelection =
         enterSelection
@@ -446,93 +570,105 @@
       return linksContainerSelection;
     }
 
+    function addHeader(node) {
+      let header =
+        node
+          .append('g')
+          .classed('header', true);
+
+      header.append('text')
+        .attr('transform', `translate(70, 30)`)
+        .classed('value', true)
+        .text((d) => d.value);
+
+      header.append('text')
+        .attr('transform', `translate(70, 50)`)
+        .classed('label', true)
+        .text((d) => d.label);
+
+      addIcon(node);
+    }
+
+    function addProperties(node) {
+      node.each(function (d) {
+        d3.select(this)
+          .call(function (selection) {
+            if (d.properties) {
+              let height = 80;
+
+              d.properties.forEach(p => {
+                selection
+                  .append('text')
+                  .attr('transform', `translate(95, ${height})`)
+                  .classed('property', true)
+                  .text((d) => p.value);
+
+                selection
+                  .append('path')
+                  .attr('transform', `translate(60, ${height - 20})`)
+                  .attr('d', (d) => getPropertySvg(p.label))
+                  .attr('fill', '#00a500');
+
+                height = height + 30;
+              })
+            }
+          });
+      })
+    }
+
+    function addRectangle(node) {
+      node.append('rect')
+        .attr('id', (d) => d.id)
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', (d) => {
+          if (d.value.length > 10) {
+            return (d.value.length + 10) + d.width;
+          }
+
+          return d.width;
+        })
+        .attr('height', (d) => {
+          if (d.properties) {
+            return (Object.keys(d.properties).length * 20) + d.height;
+          }
+
+          return d.height;
+        })
+        .classed('node', true);
+    }
+
     function addNodes(enterSelection) {
       const nodesContainerSelection =
         enterSelection
           .append('g')
-          .attr("transform", function (d) {
+          .attr('transform', function (d) {
             const positionToUseX = (d.fx >= 0) ? d.fx : d.x;
             const positionToUseY = (d.fy >= 0) ? d.fy : d.y;
 
-            return "translate(" + positionToUseX + "," + positionToUseY + ")";
+            return `translate(${positionToUseX},${positionToUseY})`;
           })
           .on('click', onNodeClick)
           .classed('node-container', true)
           .classed('selected', function (d) { return d.selected; })
           .call(
             d3.drag()
-              .on("start", dragstart)
-              .on("drag", dragging)
-              .on("end", dragend)
+              .on('start', dragstart)
+              .on('drag', dragging)
+              .on('end', dragend)
           );
 
-      nodesContainerSelection.append("rect")
-        .attr('id', function (d) { return d.id })
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', function (d) { return d.width; })
-        .attr('height', function (d) { return d.height; })
-        .attr('pointer-events', 'visible')
-        .classed('node', true);
+      addRectangle(nodesContainerSelection);
 
-      let data = nodesContainerSelection
-        .append('g')
-        .classed('data', true)
+      addHeader(nodesContainerSelection);
 
-      data.append('text')
-        .attr('transform', `translate(70, 30)`)
-        .classed('value', true)
-        .text('FName');
+      isSelected(nodesContainerSelection);
 
-      data.append('text')
-        .attr('transform', `translate(70, 50)`)
-        .classed('label', true)
-        .text('Tabular Column')
-
-      let icon = nodesContainerSelection
-        .append('g')
-        .attr("transform", `translate(20,20)`);
-
-
-      icon.append('path')
-        .attr('d', 'M38.9711 15C39.8643 16.547 39.8643 18.453 38.9711 20L31.7543 32.5C30.8611 34.047 29.2105 35 27.4241 35H12.9904C11.2041 35 9.55342 34.047 8.66025 32.5L1.44337 20C0.55021 18.453 0.550212 16.547 1.44338 15L8.66026 2.5C9.55342 0.952992 11.2041 0 12.9904 0H27.4241C29.2105 0 30.8611 0.952994 31.7543 2.5L38.9711 15Z')
-        .attr('fill', '#5C82EB');
-
-      // TYPE1
-      icon.append('path')
-        .attr('d', (d) => d.type === 'TYPE1' ? 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z' : '')
-        .attr('fill', (d) => d.type === 'TYPE1' ? '#ffffff' : '');
-
-      // TYPE2
-      icon.append('path')
-        .attr('d', (d) => d.type === 'TYPE1' ? 'M10 9.5V24.5H30V9.5H10ZM26.25 20.75H25V17L21.25 20.75V18.25H13.75V15.75H21.25V13.25L25 17V13.25H26.25V20.75Z' : '')
-        .attr('fill', (d) => d.type === 'TYPE1' ? '#ffffff' : '');
-      icon.append('path')
-          .attr('d', (d) => d.type === 'TYPE2' ? 'M20 2.5H18.75V0H6.25V2.5H3.75V4.0625L3 5H1.25V7.1875L0 8.75V20H15L20 13.75V2.5ZM2.5 6.25H12.5V8.75H2.5V6.25ZM13.75 18.75H1.25V10H13.75V18.75ZM15 8.75H13.75V5H5V3.75H15V8.75ZM17.5 5.625L16.25 7.1875V2.5H7.5V1.25H17.5V5.625Z' : '')
-          .attr('fill', (d) => d.type === 'TYPE2' ? '#ffffff' : '');
-
-      let pin = nodesContainerSelection
-        .append('path')
-        .classed('pin', true)
-        .attr('d', (d) => {
-          if (d.selected) {
-            return 'M7 2h10v2l-2 1v5l3 3v3h-5v4l-1 3l-1-3v-4H6v-3l3-3V5L7 4z';
-          }
-        })
-        .attr('transform', (d) => {
-          let x = d.width - 30;
-          let y = 10;
-
-          return `translate(${x} ${y}) rotate(30 0 0)`;
-        });
+      addProperties(nodesContainerSelection);
 
       return nodesContainerSelection;
     }
 
-
-
-
-    // update the display positions after each simulation tick
     function ticked() {
       let calculateNodeCenterX = (nodeX) => {
         return nodeX + (50 + 2 * 10) / 2;
@@ -625,76 +761,94 @@
       this.x = x;
       this.y = y;
     }
+
     Point.add = function (a, b) {
       return Point(a.x + b.x, a.y + b.y);
     }
+
     Point.sub = function (a, b) {
       return Point(a.x - b.x, a.y - b.y);
     }
+
     Point.cross = function (a, b) {
       return a.x * b.y - a.y * b.x;
     }
+
     Point.scale = function (a, k) {
       return Point(a.x * k, a.y * k);
     }
+
     Point.unit = function (a) {
       return Point.scale(a, 1 / Point.magnitude(a));
     }
+
     Point.magnitude = function (a) {
       return Math.sqrt(a.x * a.x + a.y * a.y);
     }
+
     Point.eq = function (a, b) {
-      return Math.abs(a.x - b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6;
+      return Math.abs(a.x - b.x) < 1e-6
+        && Math.abs(a.y - b.y) < 1e-6;
     }
 
     function pointInSegment(s, p) {
-      var a = s[0];
-      var b = s[1];
-      return Math.abs(Point.cross(Point.sub(p, a), Point.sub(b, a))) < 1e-6 && Math.min(a.x, b.x) <= p.x && p.x <= Math.max(a.x, b.x) && Math.min(a.y, b.y) <= p.y && p.y <= Math.max(a.y, b.y);
+      let a = s[0];
+      let b = s[1];
+
+      return Math.abs(Point.cross(Point.sub(p, a), Point.sub(b, a))) < 1e-6
+        && Math.min(a.x, b.x) <= p.x
+        && p.x <= Math.max(a.x, b.x)
+        && Math.min(a.y, b.y) <= p.y
+        && p.y <= Math.max(a.y, b.y);
     }
 
     function lineLineIntersection(s1, s2) {
-      var a = s1[0];
-      var b = s1[1];
-      var c = s2[0];
-      var d = s2[1];
-      var v1 = Point.sub(b, a);
-      var v2 = Point.sub(d, c);
+      let a = s1[0];
+      let b = s1[1];
+      let c = s2[0];
+      let d = s2[1];
+      let v1 = Point.sub(b, a);
+      let v2 = Point.sub(d, c);
+
       if (Math.abs(Point.cross(v1, v2)) < 1e-6) {
         // collinear
         return null;
       }
-      var kNum = Point.cross(
+
+      let kNum = Point.cross(
         Point.sub(c, a),
         Point.sub(d, c)
       );
-      var kDen = Point.cross(
+
+      let kDen = Point.cross(
         Point.sub(b, a),
         Point.sub(d, c)
       );
-      var ip = Point.add(
+
+      let ip = Point.add(
         a,
         Point.scale(
           Point.sub(b, a),
           Math.abs(kNum / kDen)
         )
       );
+
       return ip;
     }
 
     function segmentSegmentIntersection(s1, s2) {
-      var ip = lineLineIntersection(s1, s2);
+      let ip = lineLineIntersection(s1, s2);
       if (ip && pointInSegment(s1, ip) && pointInSegment(s2, ip)) {
         return ip;
       }
     }
 
     function boxSegmentIntersection(box, lineSegment) {
-      var topLeft = Point(box.x, box.y);
-      var topRight = Point(box.x + box.width, box.y);
-      var botLeft = Point(box.x, box.y + box.height);
-      var botRight = Point(box.x + box.width, box.y + box.height);
-      var boxSegments = [
+      let topLeft = Point(box.x, box.y);
+      let topRight = Point(box.x + box.width, box.y);
+      let botLeft = Point(box.x, box.y + box.height);
+      let botRight = Point(box.x + box.width, box.y + box.height);
+      let boxSegments = [
         // top
         [topLeft, topRight],
         // bot
@@ -704,10 +858,13 @@
         // right
         [topRight, botRight]
       ];
-      var ip;
-      for (var i = 0; !ip && i < 4; i += 1) {
+
+      let ip;
+
+      for (let i = 0; !ip && i < 4; i += 1) {
         ip = segmentSegmentIntersection(boxSegments[i], lineSegment);
       }
+
       return ip;
     }
 
@@ -724,17 +881,18 @@
 
     // should return {x1, y1, x2, y2}
     function getIntersection(a, b) {
-      var segment = buildSegmentThroughCenters(a, b);
-      var ia = boxSegmentIntersection(a, segment);
-      var ib = boxSegmentIntersection(b, segment);
+      let segment = buildSegmentThroughCenters(a, b);
+      let ia = boxSegmentIntersection(a, segment);
+      let ib = boxSegmentIntersection(b, segment);
+
       if (ia && ib && !Point.eq(ia, ib)) {
 
         // problem: the arrows are drawn after the intersection with the box
         // solution: move the arrow toward the other end
 
-        var unitV = Point.unit(Point.sub(ib, ia));
+        let unitV = Point.unit(Point.sub(ib, ia));
         // k = the width of the marker
-        var k = 18;
+        let k = 18;
         ib = Point.sub(ib, Point.scale(unitV, k));
 
         return {
