@@ -15,19 +15,19 @@
 
     <script type="module" src="../happi-graph.js"></script>
 
-    <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles">
-      </style>
-    </custom-style>
+    <style>
+      .container {
+        height:500px;
+      }
+
+      .bordered {
+        border:2px solid #777;
+      }
+    </style>
   </head>
   <body>
-    <div class="vertical-section-container centered">
-      <h3>Basic happi-graph demo</h3>
-      <demo-snippet>
-        <template>
-          <happi-graph></happi-graph>
-        </template>
-      </demo-snippet>
+    <div class="container bordered">
+      <happi-graph></happi-graph>
     </div>
   </body>
 </html>
