@@ -38,31 +38,37 @@ class HappiGraph extends PolymerElement {
   connectedCallback() {
     super.connectedCallback();
 
-    let self = this;
-
     let nodes = [
       {id: 1, x: 50, y: 200},
       {id: 2, x: 450, y: 50},
-      {id: 3, x: 450, y: 350}
+      {id: 3, x: 450, y: 350},
+      {id: 4, x: 850, y: 350}
     ];
 
     let links = [
       {from: nodes[0], to: nodes[1], connectionFrom: false, connectionTo: true},
-      {from: nodes[0], to: nodes[2], connectionFrom: false, connectionTo: true}
+      {from: nodes[0], to: nodes[2], connectionFrom: false, connectionTo: true},
+      {from: nodes[2], to: nodes[3], connectionFrom: false, connectionTo: true}
     ];
 
     this.svg = d3.select(this.$.svg);
 
-    this.allGroup = this.svg.append('g').attr('class', 'all-group');
+    this.allGroup =
+      this.svg
+        .append('g')
+        .attr('class', 'all-group')
+        .attr('transform', `translate(${0}, ${0}) scale(1)`);
+
     this.linksGroup = this.allGroup.append('g').attr('class', 'links-group');
     this.nodesGroup = this.allGroup.append('g').attr('class', 'nodes-group');
 
-    this.svg.call(
+    this.zoom =
       d3.zoom()
         .on('zoom', () => {
-          this.allGroup.attr('transform', d3.event.transform)
-        })
-    );
+          this.allGroup.attr('transform', `translate(${0 + d3.event.transform.x}, ${0 + d3.event.transform.y}) scale(${d3.event.transform.k})`)
+        });
+
+    this.svg.call(this.zoom);
 
     let nodesGroup = this.nodesGroup.selectAll()
       .data(nodes)
@@ -120,7 +126,9 @@ class HappiGraph extends PolymerElement {
       .attr('width', 300)
       .attr('height', 100)
       .attr('style', 'fill: #69b3a2')
-      .attr('stroke', 'black');
+      .attr('stroke', 'black')
+      .attr('rx', 6)
+      .attr('ry', 6);
 
     let linksGroup = this.linksGroup.selectAll()
       .data(links)
@@ -138,9 +146,22 @@ class HappiGraph extends PolymerElement {
       .attr('y1', function(d) { return d.from.y + (100/2); })
       .attr('x2', function(d) { return d.to.x - 3; })
       .attr('y2', function(d) { return d.to.y + (100/2); });
+  }
 
-    console.log(this.iconsMap);
-    console.log(this.propertiesMap);
+  customZoom(value) {
+    if (value > 0) {
+      this.zoom.scaleBy(this.svg.transition(), 1.3);
+    } else {
+      this.zoom.scaleBy(this.svg.transition(), 0.7);
+    }
+  }
+
+  customZoomIn() {
+    this.customZoom(1);
+  }
+
+  customZoomOut() {
+    this.customZoom(-1);
   }
 
   static get template() {
