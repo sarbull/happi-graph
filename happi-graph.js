@@ -4,6 +4,14 @@ import * as d3 from 'd3';
 class HappiGraph extends PolymerElement {
   static get properties() {
     return {
+      iconsMap: {
+        type: Object,
+        value: null
+      },
+      propertiesMap: {
+        type: Object,
+        value: null
+      },
       svg: {
         type: Object,
         value: null
@@ -60,53 +68,59 @@ class HappiGraph extends PolymerElement {
       .data(nodes)
       .enter();
 
-    nodesGroup
+    let nodeGroup =
+      nodesGroup
+        .append('g')
+        .classed('node-group', true)
+        .attr('id', (d) => d.id)
+        .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+        .call(
+          d3.drag()
+            .on('start', () => {
+              console.log('DRAG_START');
+            })
+            .on('drag', function(d) {
+              d.x = d3.event.x;
+              d.y = d3.event.y;
+
+              d3.select(this)
+                .attr('transform', `translate(${d3.event.x}, ${d3.event.y})`);
+
+                let _links =
+                  d3.select(
+                    d3.select(this)
+                      .node()
+                      .parentNode
+                      .parentNode
+                  )
+                  .selectAll('.links-group')
+                  .selectAll('line');
+
+                _links
+                  .filter(function(_d) {
+                    return _d.to.id === d.id;
+                  })
+                  .attr('x2', d3.event.x - 3)
+                  .attr('y2', d3.event.y + (100/2));
+
+                _links
+                  .filter(function(_d) {
+                    return _d.from.id === d.id;
+                  })
+                  .attr('x1', d3.event.x + 300)
+                  .attr('y1', d3.event.y + (100/2));
+            })
+            .on('end', () => {
+              console.log('DRAG_END');
+            })
+        );
+
+    nodeGroup
       .append('rect')
-      .attr('id', (n) => n.id)
-      .attr('x', (n) => n.x)
-      .attr('y', (n) => n.y)
       .attr('width', 300)
       .attr('height', 100)
       .attr('style', 'fill: #69b3a2')
-      .attr('stroke', 'black')
-      .call(
-        d3.drag()
-          .on('start', () => {
-            console.log('DRAG_START');
-          })
-          .on('drag', function(d) {
-            d3.select(this)
-              .attr('x', d.x = d3.event.x)
-              .attr('y', d.y = d3.event.y);
-
-              let _links =
-                d3.select(
-                  d3.select(this)
-                    .node()
-                    .parentNode
-                    .parentNode
-                )
-                .selectAll('.links-group')
-                .selectAll('line');
-
-              _links
-                .filter(function(_d) {
-                  return _d.to.id === d.id;
-                })
-                .attr('x2', d3.event.x - 3)
-                .attr('y2', d3.event.y + (100/2));
-
-              _links
-                .filter(function(_d) {
-                  return _d.from.id === d.id;
-                })
-                .attr('x1', d3.event.x + 300)
-                .attr('y1', d3.event.y + (100/2));
-          })
-          .on('end', () => {
-            console.log('DRAG_END');
-          })
-      );
+      .attr('stroke', 'black');
 
     let linksGroup = this.linksGroup.selectAll()
       .data(links)
@@ -124,6 +138,9 @@ class HappiGraph extends PolymerElement {
       .attr('y1', function(d) { return d.from.y + (100/2); })
       .attr('x2', function(d) { return d.to.x - 3; })
       .attr('y2', function(d) { return d.to.y + (100/2); });
+
+    console.log(this.iconsMap);
+    console.log(this.propertiesMap);
   }
 
   static get template() {
