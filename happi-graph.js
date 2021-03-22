@@ -31,6 +31,14 @@ class HappiGraph extends PolymerElement {
       linksGroup: {
         type: Object,
         value: null
+      },
+      nodes: {
+        type: Array,
+        value: []
+      },
+      links: {
+        type: Array,
+        value: []
       }
     };
   }
@@ -38,26 +46,12 @@ class HappiGraph extends PolymerElement {
   connectedCallback() {
     super.connectedCallback();
 
-    let nodes = [
-      {id: 1, x: 50, y: 200},
-      {id: 2, x: 450, y: 50},
-      {id: 3, x: 450, y: 350},
-      {id: 4, x: 850, y: 350}
-    ];
-
-    let links = [
-      {from: nodes[0], to: nodes[1], connectionFrom: false, connectionTo: true},
-      {from: nodes[0], to: nodes[2], connectionFrom: false, connectionTo: true},
-      {from: nodes[2], to: nodes[3], connectionFrom: false, connectionTo: true}
-    ];
-
     this.svg = d3.select(this.$.svg);
 
     this.allGroup =
       this.svg
         .append('g')
-        .attr('class', 'all-group')
-        .attr('transform', `translate(${0}, ${0}) scale(1)`);
+        .attr('class', 'all-group');
 
     this.linksGroup = this.allGroup.append('g').attr('class', 'links-group');
     this.nodesGroup = this.allGroup.append('g').attr('class', 'nodes-group');
@@ -65,13 +59,13 @@ class HappiGraph extends PolymerElement {
     this.zoom =
       d3.zoom()
         .on('zoom', () => {
-          this.allGroup.attr('transform', `translate(${0 + d3.event.transform.x}, ${0 + d3.event.transform.y}) scale(${d3.event.transform.k})`)
+          this.allGroup.attr('transform', `translate(${d3.event.transform.x}, ${d3.event.transform.y}) scale(${d3.event.transform.k})`)
         });
 
     this.svg.call(this.zoom);
 
     let nodesGroup = this.nodesGroup.selectAll()
-      .data(nodes)
+      .data(this.nodes)
       .enter();
 
     let nodeGroup =
@@ -82,8 +76,8 @@ class HappiGraph extends PolymerElement {
         .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
         .call(
           d3.drag()
-            .on('start', () => {
-              console.log('DRAG_START');
+            .on('start', (d) => {
+              console.log('DRAG_START', d.id);
             })
             .on('drag', function(d) {
               d.x = d3.event.x;
@@ -116,8 +110,8 @@ class HappiGraph extends PolymerElement {
                   .attr('x1', d3.event.x + 300)
                   .attr('y1', d3.event.y + (100/2));
             })
-            .on('end', () => {
-              console.log('DRAG_END');
+            .on('end', (d) => {
+              console.log('DRAG_END', d.id);
             })
         );
 
@@ -131,7 +125,7 @@ class HappiGraph extends PolymerElement {
       .attr('ry', 6);
 
     let linksGroup = this.linksGroup.selectAll()
-      .data(links)
+      .data(this.links)
       .enter();
 
     linksGroup
@@ -146,6 +140,39 @@ class HappiGraph extends PolymerElement {
       .attr('y1', function(d) { return d.from.y + (100/2); })
       .attr('x2', function(d) { return d.to.x - 3; })
       .attr('y2', function(d) { return d.to.y + (100/2); });
+
+      let maxW = parseInt(this.svg.style('width'), 10);
+      let maxH = parseInt(this.svg.style('height'), 10);
+
+      let currentWidth = this.allGroup.node().getBBox().width;
+      let currentHeight = this.allGroup.node().getBBox().height;
+
+      let scaledBy;
+
+      if(currentWidth > currentHeight) {
+        scaledBy = (maxW - 100)/currentWidth;
+      } else {
+        scaledBy = (maxH - 100)/currentHeight;
+      }
+
+      console.log(
+        'maxW =', maxW,
+        'maxH =', maxH,
+        'currentWidth =', currentWidth,
+        'currentHeight =', currentHeight,
+        scaledBy
+      );
+
+      this.svg.transition()
+        .call(
+          this.zoom.transform,
+          d3.zoomIdentity
+            .translate(
+              (maxW/2) - ((currentWidth * scaledBy)/2),
+              (maxH/2) - ((currentHeight * scaledBy)/2)
+            )
+            .scale(scaledBy)
+        );
   }
 
   customZoom(value) {
