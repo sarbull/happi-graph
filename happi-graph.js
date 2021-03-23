@@ -2,6 +2,12 @@ import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import * as d3 from 'd3';
 
 class HappiGraph extends PolymerElement {
+  constructor() {
+    super();
+
+    this.zooming = this.zooming.bind(this);
+  }
+
   static get properties() {
     return {
       iconsMap: {
@@ -11,6 +17,14 @@ class HappiGraph extends PolymerElement {
       propertiesMap: {
         type: Object,
         value: null
+      },
+      currentTransformation: {
+        type: Object,
+        value: {
+          translateX: 0,
+          translateY: 0,
+          scale: 1
+        }
       },
       svg: {
         type: Object,
@@ -58,9 +72,7 @@ class HappiGraph extends PolymerElement {
 
     this.zoom =
       d3.zoom()
-        .on('zoom', () => {
-          this.allGroup.attr('transform', `translate(${d3.event.transform.x}, ${d3.event.transform.y}) scale(${d3.event.transform.k})`)
-        });
+        .on('zoom', this.zooming);
 
     this.svg.call(this.zoom);
 
@@ -101,14 +113,14 @@ class HappiGraph extends PolymerElement {
                     return _d.to.id === d.id;
                   })
                   .attr('x2', d3.event.x - 3)
-                  .attr('y2', d3.event.y + (100/2));
+                  .attr('y2', d3.event.y + (50/2));
 
                 _links
                   .filter(function(_d) {
                     return _d.from.id === d.id;
                   })
-                  .attr('x1', d3.event.x + 300)
-                  .attr('y1', d3.event.y + (100/2));
+                  .attr('x1', d3.event.x + 100)
+                  .attr('y1', d3.event.y + (50/2));
             })
             .on('end', (d) => {
               console.log('DRAG_END', d.id);
@@ -117,8 +129,8 @@ class HappiGraph extends PolymerElement {
 
     nodeGroup
       .append('rect')
-      .attr('width', 300)
-      .attr('height', 100)
+      .attr('width', 100)
+      .attr('height', 50)
       .attr('style', 'fill: #69b3a2')
       .attr('stroke', 'black')
       .attr('rx', 6)
@@ -136,43 +148,20 @@ class HappiGraph extends PolymerElement {
       .attr('marker-end', (d) => (d.connectionTo) ? 'url(#arrow-end)' : '')
       .attr('from', function(d) { return d.from.id; })
       .attr('to', function(d) { return d.to.id; })
-      .attr('x1', function(d) { return d.from.x + 300; })
-      .attr('y1', function(d) { return d.from.y + (100/2); })
+      .attr('x1', function(d) { return d.from.x + 100; })
+      .attr('y1', function(d) { return d.from.y + (50/2); })
       .attr('x2', function(d) { return d.to.x - 3; })
-      .attr('y2', function(d) { return d.to.y + (100/2); });
+      .attr('y2', function(d) { return d.to.y + (50/2); });
 
-      let maxW = parseInt(this.svg.style('width'), 10);
-      let maxH = parseInt(this.svg.style('height'), 10);
+    this.centerGraph();
+  }
 
-      let currentWidth = this.allGroup.node().getBBox().width;
-      let currentHeight = this.allGroup.node().getBBox().height;
+  zooming() {
+    this.currentTransformation.scale = d3.event.transform.k;
+    this.currentTransformation.translateX = d3.event.transform.x;
+    this.currentTransformation.translateY = d3.event.transform.y;
 
-      let scaledBy;
-
-      if(currentWidth > currentHeight) {
-        scaledBy = (maxW - 100)/currentWidth;
-      } else {
-        scaledBy = (maxH - 100)/currentHeight;
-      }
-
-      console.log(
-        'maxW =', maxW,
-        'maxH =', maxH,
-        'currentWidth =', currentWidth,
-        'currentHeight =', currentHeight,
-        scaledBy
-      );
-
-      this.svg.transition()
-        .call(
-          this.zoom.transform,
-          d3.zoomIdentity
-            .translate(
-              (maxW/2) - ((currentWidth * scaledBy)/2),
-              (maxH/2) - ((currentHeight * scaledBy)/2)
-            )
-            .scale(scaledBy)
-        );
+    this.allGroup.attr('transform', d3.event.transform);
   }
 
   customZoom(value) {
@@ -189,6 +178,39 @@ class HappiGraph extends PolymerElement {
 
   customZoomOut() {
     this.customZoom(-1);
+  }
+
+  centerGraph() {
+    let self = this;
+
+    let svgWidth = parseInt(this.svg.style('width'));
+    let svgHeight = parseInt(this.svg.style('height'));
+
+    let graphBBox = this.allGroup.node().getBBox();
+
+    this.currentTransformation.scale = Math.min(
+      (svgWidth - 50) / graphBBox.width,
+      (svgHeight - 50) / graphBBox.height
+    );
+
+    let svgCenter = {
+      x: svgWidth / 2,
+      y: svgHeight / 2
+    };
+
+    this.currentTransformation.translateX = svgCenter.x - ((graphBBox.x * this.currentTransformation.scale) + (graphBBox.width * this.currentTransformation.scale) / 2);
+    this.currentTransformation.translateY = svgCenter.y - ((graphBBox.y * this.currentTransformation.scale) + (graphBBox.height * this.currentTransformation.scale) / 2);
+
+    this.svg.transition()
+      .call(
+        self.zoom.transform,
+        d3.zoomIdentity
+          .translate(
+            this.currentTransformation.translateX,
+            this.currentTransformation.translateY
+          )
+          .scale(this.currentTransformation.scale)
+      )
   }
 
   static get template() {

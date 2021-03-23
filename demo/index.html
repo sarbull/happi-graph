@@ -17,7 +17,7 @@
 
     <style>
       .container {
-        height:500px;
+        height:400px;
       }
 
       .bordered {
@@ -28,11 +28,18 @@
   <body>
     <button id="zoomIn">+</button>
     <button id="zoomOut">-</button>
+    <button id="centerGraph">Center Graph</button>
 
     <br/><br/>
 
     <div class="container bordered">
       <happi-graph id="happi-graph"></happi-graph>
+    </div>
+
+    <br/><br/>
+
+    <div class="container bordered">
+      <happi-graph id="happi-graph-two"></happi-graph>
     </div>
 
     <script>
@@ -45,60 +52,85 @@
       };
 
       let happiGraphInstance = document.querySelector('#happi-graph');
-
       let zoomIn = document.querySelector('#zoomIn');
-
-      zoomIn.addEventListener('click', () => {
-        happiGraphInstance.customZoomIn();
-      });
-
       let zoomOut = document.querySelector('#zoomOut');
-
-      zoomOut.addEventListener('click', () => {
-        happiGraphInstance.customZoomOut();
-      });
+      let centerGraph = document.querySelector('#centerGraph');
 
       happiGraphInstance.iconsMap = iconsMap;
       happiGraphInstance.propertiesMap = propertiesMap;
 
       happiGraphInstance.nodes = [
-        {id: 1, x: 0, y: 750},
-        {id: 2, x: 600, y: 0},
-        {id: 3, x: 600, y: 300},
+        {id: 0, x: 0, y: 375},
+        {id: 1, x: 150, y: 0},
 
-        {id: 4, x: 1200, y: 300},
-        {id: 5, x: 1800, y: 300},
+        {id: 2, x: 150, y: 150 },
+        {id: 3, x: 300, y: 150 },
+        {id: 4, x: 450, y: 150 },
 
-        {id: 6, x: 600, y: 1500},
-        {id: 7, x: 600, y: 600},
-        {id: 8, x: 600, y: 900},
-        {id: 9, x: 600, y: 1200},
+        {id: 5, x: 150, y: 300},
+        {id: 6, x: 150, y: 450},
+        {id: 7, x: 150, y: 600},
+        {id: 8, x: 150, y: 750},
 
-        {id: 10, x: 2400, y: 300},
-        {id: 11, x: 3000, y: 300},
-        {id: 12, x: 3600, y: 300},
-        {id: 13, x: 4200, y: 300},
-        {id: 14, x: 4800, y: 300},
-        {id: 15, x: 5400, y: 300}
+        {id: 9, x: 600, y: 150 },
+        {id: 10, x: 750, y: 150 },
+        {id: 11, x: 900, y: 150 },
+        {id: 12, x: 1050, y: 150 },
+        {id: 13, x: 1200, y: 150 },
+        {id: 14, x: 1350, y: 150 },
+        {id: 15, x: 1500, y: 150 }
       ];
 
       happiGraphInstance.links = [
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[1], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[2], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[5], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[6], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[7], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[8], connectionFrom: false, connectionTo: true},
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[1], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[2], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[5], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[6], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[7], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[0], to: happiGraphInstance.nodes[8], connectionFrom: false, connectionTo: true },
 
-        {from: happiGraphInstance.nodes[2], to: happiGraphInstance.nodes[3], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[3], to: happiGraphInstance.nodes[4], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[4], to: happiGraphInstance.nodes[9], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[9], to: happiGraphInstance.nodes[10], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[10], to: happiGraphInstance.nodes[11], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[11], to: happiGraphInstance.nodes[12], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[12], to: happiGraphInstance.nodes[13], connectionFrom: false, connectionTo: true},
-        {from: happiGraphInstance.nodes[13], to: happiGraphInstance.nodes[14], connectionFrom: false, connectionTo: true},
+        { from: happiGraphInstance.nodes[2], to: happiGraphInstance.nodes[3], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[3], to: happiGraphInstance.nodes[4], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[4], to: happiGraphInstance.nodes[9], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[9], to: happiGraphInstance.nodes[10], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[10], to: happiGraphInstance.nodes[11], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[11], to: happiGraphInstance.nodes[12], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[12], to: happiGraphInstance.nodes[13], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[13], to: happiGraphInstance.nodes[14], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance.nodes[14], to: happiGraphInstance.nodes[15], connectionFrom: false, connectionTo: true }
       ];
+
+      let happiGraphInstance2 = document.querySelector('#happi-graph-two');
+      happiGraphInstance2.iconsMap = iconsMap;
+      happiGraphInstance2.propertiesMap = propertiesMap;
+
+      happiGraphInstance2.nodes = [
+        {id: 0, x: 0, y: 200},
+        {id: 1, x: 600, y: 0},
+        {id: 2, x: 600, y: 200},
+        {id: 3, x: 600, y: 400},
+      ];
+
+      happiGraphInstance2.links = [
+        { from: happiGraphInstance2.nodes[0], to: happiGraphInstance2.nodes[1], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance2.nodes[0], to: happiGraphInstance2.nodes[2], connectionFrom: false, connectionTo: true },
+        { from: happiGraphInstance2.nodes[0], to: happiGraphInstance2.nodes[3], connectionFrom: false, connectionTo: true }
+      ];
+
+      zoomIn.addEventListener('click', () => {
+        happiGraphInstance.customZoomIn();
+        happiGraphInstance2.customZoomIn();
+      });
+
+      zoomOut.addEventListener('click', () => {
+        happiGraphInstance.customZoomOut();
+        happiGraphInstance2.customZoomOut();
+      });
+
+      centerGraph.addEventListener('click', () => {
+        happiGraphInstance.centerGraph();
+        happiGraphInstance2.centerGraph();
+      });
     </script>
   </body>
 </html>
