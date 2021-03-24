@@ -125,7 +125,7 @@
         { from: data2.nodes[0], to: data2.nodes[3], connectionFrom: false, connectionTo: true }
       ];
 
-      happiGraphInstance2.data = data2;
+      happiGraphInstance2.data = { ...data2 };
       happiGraphInstance2.iconsMap = iconsMap;
       happiGraphInstance2.propertiesMap = propertiesMap;
 

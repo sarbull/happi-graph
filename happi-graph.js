@@ -57,7 +57,7 @@ class HappiGraph extends PolymerElement {
   _dataUpdate(newData) {
     console.log('_dataUpdate()');
 
-    if(newData.nodes.length > 0 && newData.links.length > 0) {
+    if(newData && newData.nodes.length > 0 && newData.links.length > 0) {
       this.removeData();
 
       this.nodes = newData.nodes;
@@ -68,16 +68,16 @@ class HappiGraph extends PolymerElement {
       this.addLinks();
       this.centerGraph();
     } else {
-      console.log('DATA_NODES_AND_DATA_LINKS_ARE_EMPTY');
+      console.log('NEW_DATA_EMPTY');
     }
   }
 
   removeData() {
     this.nodes = [];
     this.links = [];
+    this.data = null;
 
-    this.linksGroup ? this.linksGroup.selectAll('*').remove() : console.log('LINKS_GROUP_EMPTY');
-    this.nodesGroup ? this.nodesGroup.selectAll('*').remove() : console.log('NODES_GROUP_EMPTY');
+    this.allGroup ? this.allGroup.remove() : console.log('ALL_GROUP_EMPTY');
   }
 
   initGraph() {

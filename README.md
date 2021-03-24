@@ -41,7 +41,7 @@ data.links = [
   { from: data.nodes[0], to: data.nodes[3], connectionFrom: false, connectionTo: true }
 ];
 
-happiGraphInstance.data = data;
+happiGraphInstance.data = { ...data };
 happiGraphInstance.iconsMap = iconsMap;
 happiGraphInstance.propertiesMap = propertiesMap;
 
