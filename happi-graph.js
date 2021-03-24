@@ -18,14 +18,6 @@ class HappiGraph extends PolymerElement {
         type: Object,
         value: null
       },
-      currentTransformation: {
-        type: Object,
-        value: {
-          translateX: 0,
-          translateY: 0,
-          scale: 1
-        }
-      },
       svg: {
         type: Object,
         value: null
@@ -157,10 +149,6 @@ class HappiGraph extends PolymerElement {
   }
 
   zooming() {
-    this.currentTransformation.scale = d3.event.transform.k;
-    this.currentTransformation.translateX = d3.event.transform.x;
-    this.currentTransformation.translateY = d3.event.transform.y;
-
     this.allGroup.attr('transform', d3.event.transform);
   }
 
@@ -188,7 +176,7 @@ class HappiGraph extends PolymerElement {
 
     let graphBBox = this.allGroup.node().getBBox();
 
-    this.currentTransformation.scale = Math.min(
+    let scaledBy = Math.min(
       (svgWidth - 50) / graphBBox.width,
       (svgHeight - 50) / graphBBox.height
     );
@@ -198,18 +186,15 @@ class HappiGraph extends PolymerElement {
       y: svgHeight / 2
     };
 
-    this.currentTransformation.translateX = svgCenter.x - ((graphBBox.x * this.currentTransformation.scale) + (graphBBox.width * this.currentTransformation.scale) / 2);
-    this.currentTransformation.translateY = svgCenter.y - ((graphBBox.y * this.currentTransformation.scale) + (graphBBox.height * this.currentTransformation.scale) / 2);
-
     this.svg.transition()
       .call(
         self.zoom.transform,
         d3.zoomIdentity
           .translate(
-            this.currentTransformation.translateX,
-            this.currentTransformation.translateY
+            svgCenter.x - ((graphBBox.x * scaledBy) + (graphBBox.width * scaledBy) / 2),
+            svgCenter.y - ((graphBBox.y * scaledBy) + (graphBBox.height * scaledBy) / 2)
           )
-          .scale(this.currentTransformation.scale)
+          .scale(scaledBy)
       )
   }
 
