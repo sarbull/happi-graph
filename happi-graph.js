@@ -1,5 +1,6 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import * as d3 from 'd3';
+import { compute } from './happi-graph-algorithms';
 
 class HappiGraph extends PolymerElement {
   constructor() {
@@ -38,6 +39,10 @@ class HappiGraph extends PolymerElement {
         type: Object,
         value: null
       },
+      graphDirection: {
+        type: String,
+        value: ''
+      },
       nodes: {
         type: Array,
         value: []
@@ -60,8 +65,63 @@ class HappiGraph extends PolymerElement {
     if(newData && newData.nodes.length > 0 && newData.links.length > 0) {
       this.removeData();
 
-      this.nodes = newData.nodes;
-      this.links = newData.links;
+      this.graphDirection = newData.graphDirection;
+
+      this.nodes = newData.nodes.map(n => {
+        let keys = Object.keys(n.properties ? n.properties : {});
+
+        let props = keys.map(k => {
+          let camelCased = k.charAt(0).toUpperCase() + k.slice(1);
+
+          return {
+            value: n.properties[k],
+            label: k,
+            icon: this.propertiesMap[camelCased] ? this.propertiesMap[camelCased].icon : 'simple-square',
+            groupName: camelCased
+          }
+        });
+
+        let result = {
+          id: n.id,
+          type: this.propertiesMap[n.group] ? this.propertiesMap[n.group].icon : 'simple-square',
+          value: n.label ? n.label : 'N/A',
+          label: n.group ? n.group : 'N/A',
+          selected: n.id === newData.selectedNodeId,
+          properties: [
+            ...props
+          ]
+        };
+
+        this.links = newData.links.map(e => {
+          return {
+            id: `${e.from}-${e.to}`,
+            label: e.label,
+            from: e.from,
+            to: e.to,
+            connectionFrom: e.connectionFrom ? e.connectionFrom : false,
+            connectionTo: e.connectionTo ? e.connectionTo : true
+          };
+        });
+
+        return result;
+      });
+
+      let selectedNode = this.nodes.filter(n => n.selected === true).pop();
+
+      this.nodes = [ ...compute(selectedNode.id, this.nodes, this.links, newData.graphDirection) ];
+
+      this.links = [
+        ...this.links.map(e => {
+          return {
+            id: `${e.from}-${e.to}`,
+            label: e.label,
+            from: this.nodes.find(n => n.id === e.from),
+            to: this.nodes.find(n => n.id === e.to),
+            connectionFrom: e.connectionFrom,
+            connectionTo: e.connectionTo
+          };
+        })
+      ];
 
       this.initGraph();
       this.addNodes();
@@ -99,6 +159,8 @@ class HappiGraph extends PolymerElement {
   }
 
   addNodes() {
+    let self = this;
+
     let nodesGroup = this.nodesGroup.selectAll()
       .data(this.nodes)
       .enter();
@@ -112,7 +174,7 @@ class HappiGraph extends PolymerElement {
         .call(
           d3.drag()
             .on('start', (d) => {
-              console.log('DRAG_START', d.id);
+              console.log('DRAG_START', d);
             })
             .on('drag', function(d) {
               d.x = d3.event.x;
@@ -135,18 +197,18 @@ class HappiGraph extends PolymerElement {
                   .filter(function(_d) {
                     return _d.to.id === d.id;
                   })
-                  .attr('x2', d3.event.x - 3)
-                  .attr('y2', d3.event.y + (50/2));
+                  .attr('x2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x - 3 : d3.event.x + (100/2))
+                  .attr('y2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (50/2) : d3.event.y + (100 /2));
 
                 _links
                   .filter(function(_d) {
                     return _d.from.id === d.id;
                   })
-                  .attr('x1', d3.event.x + 100)
-                  .attr('y1', d3.event.y + (50/2));
+                  .attr('x1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x + 100 : d3.event.x + (100/2))
+                  .attr('y1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (50/2) : d3.event.y);
             })
             .on('end', (d) => {
-              console.log('DRAG_END', d.id);
+              console.log('DRAG_END', d);
             })
         );
 
@@ -161,6 +223,8 @@ class HappiGraph extends PolymerElement {
   }
 
   addLinks() {
+    let self = this;
+
     let linksGroup = this.linksGroup.selectAll()
       .data(this.links)
       .enter();
@@ -173,10 +237,10 @@ class HappiGraph extends PolymerElement {
       .attr('marker-end', (d) => (d.connectionTo) ? 'url(#arrow-end)' : '')
       .attr('from', function(d) { return d.from.id; })
       .attr('to', function(d) { return d.to.id; })
-      .attr('x1', function(d) { return d.from.x + 100; })
-      .attr('y1', function(d) { return d.from.y + (50/2); })
-      .attr('x2', function(d) { return d.to.x - 3; })
-      .attr('y2', function(d) { return d.to.y + (50/2); });
+      .attr('x1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.x + 100 : d.from.x + (100/2))
+      .attr('y1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.y + (50/2) : d.from.y)
+      .attr('x2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.x - 3 : d.to.x + (100/2))
+      .attr('y2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.y + (50/2) : d.to.y + (100/2));
   }
 
   zooming() {
