@@ -26,19 +26,23 @@ let iconsMap = {
 let happiGraphInstance = document.querySelector('#happi-graph');
 
 let data = {
+  graphDirection: 'VERTICAL',
+  selectedNodeId: 0,
   nodes: [
-    {id: 0, x: 0, y: 200},
-    {id: 1, x: 600, y: 0},
-    {id: 2, x: 600, y: 200},
-    {id: 3, x: 600, y: 400},
+    { id: 0, properties: {} },
+    { id: 1, properties: {} },
+    { id: 2, properties: {} },
+    { id: 3, properties: {} },
+    { id: 4, properties: {} },
   ],
   links: []
 };
 
 data.links = [
-  { from: data.nodes[0], to: data.nodes[1], connectionFrom: false, connectionTo: true },
-  { from: data.nodes[0], to: data.nodes[2], connectionFrom: false, connectionTo: true },
-  { from: data.nodes[0], to: data.nodes[3], connectionFrom: false, connectionTo: true }
+  { from: 0, to: 1, connectionFrom: false, connectionTo: true },
+  { from: 0, to: 2, connectionFrom: false, connectionTo: true },
+  { from: 0, to: 3, connectionFrom: false, connectionTo: true },
+  { from: 3, to: 4, connectionFrom: false, connectionTo: true }
 ];
 
 happiGraphInstance.data = { ...data };
