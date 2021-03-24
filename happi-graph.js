@@ -45,13 +45,42 @@ class HappiGraph extends PolymerElement {
       links: {
         type: Array,
         value: []
+      },
+      data: {
+        type: Object,
+        value: null,
+        observer: '_dataUpdate'
       }
     };
   }
 
-  connectedCallback() {
-    super.connectedCallback();
+  _dataUpdate(newData) {
+    console.log('_dataUpdate()');
 
+    if(newData.nodes.length > 0 && newData.links.length > 0) {
+      this.removeData();
+
+      this.nodes = newData.nodes;
+      this.links = newData.links;
+
+      this.initGraph();
+      this.addNodes();
+      this.addLinks();
+      this.centerGraph();
+    } else {
+      console.log('DATA_NODES_AND_DATA_LINKS_ARE_EMPTY');
+    }
+  }
+
+  removeData() {
+    this.nodes = [];
+    this.links = [];
+
+    this.linksGroup ? this.linksGroup.selectAll('*').remove() : console.log('LINKS_GROUP_EMPTY');
+    this.nodesGroup ? this.nodesGroup.selectAll('*').remove() : console.log('NODES_GROUP_EMPTY');
+  }
+
+  initGraph() {
     this.svg = d3.select(this.$.svg);
 
     this.allGroup =
@@ -67,7 +96,9 @@ class HappiGraph extends PolymerElement {
         .on('zoom', this.zooming);
 
     this.svg.call(this.zoom);
+  }
 
+  addNodes() {
     let nodesGroup = this.nodesGroup.selectAll()
       .data(this.nodes)
       .enter();
@@ -127,7 +158,9 @@ class HappiGraph extends PolymerElement {
       .attr('stroke', 'black')
       .attr('rx', 6)
       .attr('ry', 6);
+  }
 
+  addLinks() {
     let linksGroup = this.linksGroup.selectAll()
       .data(this.links)
       .enter();
@@ -144,8 +177,6 @@ class HappiGraph extends PolymerElement {
       .attr('y1', function(d) { return d.from.y + (50/2); })
       .attr('x2', function(d) { return d.to.x - 3; })
       .attr('y2', function(d) { return d.to.y + (50/2); });
-
-    this.centerGraph();
   }
 
   zooming() {
@@ -178,7 +209,8 @@ class HappiGraph extends PolymerElement {
 
     let scaledBy = Math.min(
       (svgWidth - 50) / graphBBox.width,
-      (svgHeight - 50) / graphBBox.height
+      (svgHeight - 50) / graphBBox.height,
+      1
     );
 
     let svgCenter = {
