@@ -1,6 +1,15 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import * as d3 from 'd3';
+import './happi-graph-legend';
 import { compute } from './happi-graph-algorithms';
+import {
+  addHeader,
+  addIcon,
+  addProperties,
+  getNodeHeight,
+  isSelected
+} from './happi-graph-helpers';
+
 
 class HappiGraph extends PolymerElement {
   constructor() {
@@ -60,10 +69,12 @@ class HappiGraph extends PolymerElement {
   }
 
   _dataUpdate(newData) {
-    console.log('_dataUpdate()');
+    console.log('_dataUpdate(', newData, ')');
 
     if(newData && newData.nodes.length > 0 && newData.links.length > 0) {
-      this.removeData();
+      if(this.data === null) {
+        this.removeData();
+      }
 
       this.graphDirection = newData.graphDirection;
 
@@ -87,6 +98,8 @@ class HappiGraph extends PolymerElement {
           value: n.label ? n.label : 'N/A',
           label: n.group ? n.group : 'N/A',
           selected: n.id === newData.selectedNodeId,
+          width: 250,
+          height: getNodeHeight(props.length),
           properties: [
             ...props
           ]
@@ -195,17 +208,17 @@ class HappiGraph extends PolymerElement {
 
                 _links
                   .filter(function(_d) {
-                    return _d.to.id === d.id;
+                    return _d.from.id === d.id;
                   })
-                  .attr('x2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x - 3 : d3.event.x + (100/2))
-                  .attr('y2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (50/2) : d3.event.y + (100 /2));
+                  .attr('x1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x + d.width + 3 : d3.event.x + (d.width/2))
+                  .attr('y1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (d.height/2) : d3.event.y - 3);
 
                 _links
                   .filter(function(_d) {
-                    return _d.from.id === d.id;
+                    return _d.to.id === d.id;
                   })
-                  .attr('x1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x + 100 : d3.event.x + (100/2))
-                  .attr('y1', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (50/2) : d3.event.y);
+                  .attr('x2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.x - 5 : d3.event.x + (d.width/2))
+                  .attr('y2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (d.height/2) : d3.event.y + (d.height) + 5);
             })
             .on('end', (d) => {
               console.log('DRAG_END', d);
@@ -214,12 +227,17 @@ class HappiGraph extends PolymerElement {
 
     nodeGroup
       .append('rect')
-      .attr('width', 100)
-      .attr('height', 50)
-      .attr('style', 'fill: #69b3a2')
-      .attr('stroke', 'black')
-      .attr('rx', 6)
-      .attr('ry', 6);
+      .attr('width', (d) => d.width)
+      .attr('height', (d) => d.height)
+      .classed('node', true)
+      .classed('is-selected', (d) => d.selected)
+      .attr('rx', 20)
+      .attr('ry', 20);
+
+    isSelected(nodeGroup);
+    addHeader(nodeGroup);
+    addIcon(nodeGroup, this.iconsMap);
+    addProperties(nodeGroup, this.iconsMap);
   }
 
   addLinks() {
@@ -237,10 +255,11 @@ class HappiGraph extends PolymerElement {
       .attr('marker-end', (d) => (d.connectionTo) ? 'url(#arrow-end)' : '')
       .attr('from', function(d) { return d.from.id; })
       .attr('to', function(d) { return d.to.id; })
-      .attr('x1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.x + 100 : d.from.x + (100/2))
-      .attr('y1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.y + (50/2) : d.from.y)
-      .attr('x2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.x - 3 : d.to.x + (100/2))
-      .attr('y2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.y + (50/2) : d.to.y + (100/2));
+      .attr('x1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.x + d.from.width + 3 : d.from.x + (d.from.width/2))
+      .attr('y1', (d) => self.graphDirection === 'HORIZONTAL' ? d.from.y + (d.from.height/2) : d.from.y - 3)
+
+      .attr('x2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.x - 5 : d.to.x + (d.to.width/2))
+      .attr('y2', (d) => self.graphDirection === 'HORIZONTAL' ? d.to.y + (d.to.height/2): d.to.y + (d.to.height) + 5);
   }
 
   zooming() {
@@ -294,40 +313,133 @@ class HappiGraph extends PolymerElement {
       )
   }
 
+  hasSize(a) {
+    if(a) {
+      return a.length >= 0;
+    } else {
+      return false;
+    }
+  }
+
   static get template() {
     return html`
       <style>
+        :root {
+          --lumo-font-family: var(--happi-graph-font-family);
+        }
+
         :host {
           display: flex;
           flex-grow: 1;
           width: 100%;
           height: 100%;
+          font: var(--happi-graph-font-family);
+        }
+
+        .node {
+          fill: #ffffff;
+          stroke: #cccccc;
+        }
+
+        .node.is-selected {
+          stroke-width: 4px;
+          stroke: var(--happi-graph-primary-color);
+        }
+
+        .header {
+          fill: #000000;
+          white-space: pre;
+          font-size: 14px;
+          letter-spacing: 0em;
+          cursor: default;
+          font-family: var(--happi-graph-font-family);
+        }
+
+        .pin {
+          fill: var(--happi-graph-primary-color);
+        }
+
+        .header > .full-header-background {
+          fill: #ffffff;
+          stroke: #cccccc;
+          stroke-width: 1px;
+        }
+
+        .property-group > .property {
+          font-family: var(--happi-graph-font-family);
+          font-size: 14px;
+          cursor: default;
+        }
+
+        .property-group > .full-property-background {
+          fill: #ffffff;
+          stroke: #cccccc;
+          stroke-width: 1px;
+        }
+
+        .property-group > .property-icon > svg > path {
+          fill: var(--happi-graph-primary-color);
+        }
+
+        .happi-graph-container {
+          height:100%;
+          width:100%;
+
+          position:relative;
+        }
+
+        .happi-graph-svg {
+          position:absolute;
+          top:0;
+          left:0;
+          width: 100%;
+          height: 100%;
+        }
+
+        .happi-graph-legend {
+          position: absolute;
+          top:0;
+          right:0;
+          margin-right: var(--lumo-space-xs);
+          margin-top: var(--lumo-space-xs);
         }
       </style>
 
-      <svg id="svg" width="100%" height="100%">
-        <defs>
-          <marker id="arrow-start"
-                  markerWidth="10"
-                  markerHeight="10"
-                  refx="0"
-                  refy="3"
-                  orient="auto"
-                  markerUnits="strokeWidth">
-            <path d="M9,0 L9,6 L0,3 z" fill="#000" />
-          </marker>
+      <div class="happi-graph-container">
+        <div class="happi-graph-svg">
+          <svg id="svg" width="100%" height="100%">
+            <defs>
+              <marker id="arrow-start"
+                      markerWidth="10"
+                      markerHeight="10"
+                      refx="0"
+                      refy="3"
+                      orient="auto"
+                      markerUnits="strokeWidth">
+                <path d="M9,0 L9,6 L0,3 z" fill="#000" />
+              </marker>
 
-          <marker id="arrow-end"
-                  markerWidth="10"
-                  markerHeight="10"
-                  refx="7"
-                  refy="3"
-                  orient="auto"
-                  markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#000" />
-          </marker>
-        </defs>
-      </svg>
+              <marker id="arrow-end"
+                      markerWidth="10"
+                      markerHeight="10"
+                      refx="7"
+                      refy="3"
+                      orient="auto"
+                      markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <template is="dom-if" if="[[ hasSize(data.nodes) ]]">
+          <div class="happi-graph-legend">
+            <happi-graph-legend graph-nodes="{{ nodes }}"
+                                icons-map="{{ iconsMap }}"
+                                properties-map="{{ propertiesMap }}"></happi-graph-legend>
+          </div>
+        </template>
+      </div>
     `;
   }
 }
