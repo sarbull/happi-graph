@@ -412,8 +412,8 @@ class HappiGraph extends PolymerElement {
           position: absolute;
           top:0;
           right:0;
-          margin-right: var(--lumo-space-xs);
-          margin-top: var(--lumo-space-xs);
+          margin-right: 5px;
+          margin-top: 5px;
         }
       </style>
 

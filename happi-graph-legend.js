@@ -78,7 +78,7 @@ class HappiGraphLegend extends PolymerElement {
 
         .svg-icons {
           color: var(--happi-graph-secondary-color);
-          background:rgb(var(--happi-graph-primary-color-rgb), 0.9);
+          background: rgb(var(--happi-graph-primary-color-rgb), 0.9);
           padding:10px;
           max-width:400px;
 
@@ -108,10 +108,19 @@ class HappiGraphLegend extends PolymerElement {
 
         paper-button {
           margin: 0;
+          padding: 0.2em 0.2em 0.4em 0.57em;
+          font-size:15px;
+          color: var(--happi-graph-primary-color);
+          background-color: #f4f5f7;
+          text-transform: none;
           --paper-button: {
             @apply(--layout-vertical);
             @apply(--layout-center-center);
           };
+        }
+
+        paper-button.keyboard-focus {
+          font-weight: normal;
         }
 
         .label {
@@ -119,7 +128,7 @@ class HappiGraphLegend extends PolymerElement {
         }
 
         .label iron-icon {
-          margin-top:-4px;
+          margin-top:-3px;
         }
       </style>
 
