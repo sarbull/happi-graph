@@ -185,7 +185,7 @@ export const addProperties = (nodeGroup, iconsMap) => {
 }
 
 export const getNodeHeight = (length) => {
-  let defaultHeight = 75;
+  let defaultHeight = 70;
 
   let computedHeight =
     (length >= 1 ? (length * 30) : 0);
