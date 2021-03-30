@@ -60,7 +60,7 @@ class HappiGraphLegend extends PolymerElement {
   }
 
   getIcon(groupName) {
-    if(this.propertiesMap[groupName]) {
+    if(this.propertiesMap[groupName] && this.iconsMap[this.propertiesMap[groupName].icon]) {
       return this.iconsMap[this.propertiesMap[groupName].icon];
     } else {
       return simpleSquareIcon;
