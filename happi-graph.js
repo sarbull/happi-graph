@@ -16,6 +16,7 @@ class HappiGraph extends PolymerElement {
     super();
 
     this.zooming = this.zooming.bind(this);
+    this.onNodeClick = this.onNodeClick.bind(this);
   }
 
   static get properties() {
@@ -183,11 +184,12 @@ class HappiGraph extends PolymerElement {
         .append('g')
         .classed('node-group', true)
         .attr('id', (d) => d.id)
+        .on('click', this.onNodeClick)
         .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
         .call(
           d3.drag()
             .on('start', (d) => {
-              console.log('DRAG_START', d);
+              // console.log('DRAG_START', d);
             })
             .on('drag', function(d) {
               d.x = d3.event.x;
@@ -221,7 +223,7 @@ class HappiGraph extends PolymerElement {
                   .attr('y2', () => self.graphDirection === 'HORIZONTAL' ? d3.event.y + (d.height/2) : d3.event.y + (d.height) + 5);
             })
             .on('end', (d) => {
-              console.log('DRAG_END', d);
+              // console.log('DRAG_END', d);
             })
         );
 
@@ -311,6 +313,17 @@ class HappiGraph extends PolymerElement {
           )
           .scale(scaledBy)
       )
+  }
+
+  onNodeClick(node) {
+    this.dispatchEvent(
+      new CustomEvent('happi-graph-on-node-click', {
+        bubbles: true,
+        detail: {
+          nodeId: node.id
+        }
+      })
+    );
   }
 
   hasSize(a) {

@@ -83,6 +83,10 @@
 
       let happiGraphInstance = document.querySelector('#happi-graph');
 
+      happiGraphInstance.addEventListener('happi-graph-on-node-click', ({ detail }) => {
+        console.log(detail);
+      });
+
       let data = {
         graphDirection: 'HORIZONTAL',
         selectedNodeId: 0,
@@ -122,6 +126,10 @@
       happiGraphInstance.data = data;
 
       let happiGraphInstance2 = document.querySelector('#happi-graph-two');
+
+      happiGraphInstance2.addEventListener('happi-graph-on-node-click', ({ detail }) => {
+        console.log(detail);
+      });
 
       let data2 = {
         graphDirection: 'VERTICAL',
