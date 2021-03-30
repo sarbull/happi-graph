@@ -316,6 +316,19 @@ class HappiGraph extends PolymerElement {
       )
   }
 
+  cachedGraph() {
+    this.removeData();
+
+    this.dispatchEvent(
+      new CustomEvent('happi-graph-on-cached-graph', {
+        bubbles: true,
+        detail: {
+          id: this.id
+        }
+      })
+    );
+  }
+
   onNodeClick(node) {
     this.dispatchEvent(
       new CustomEvent('happi-graph-on-node-click', {
@@ -479,6 +492,7 @@ class HappiGraph extends PolymerElement {
           <paper-icon-button icon="icons:zoom-in" on-click="customZoomIn"></paper-icon-button>
           <paper-icon-button icon="icons:zoom-out" on-click="customZoomOut"></paper-icon-button>
           <paper-icon-button icon="icons:settings-overscan" on-click="centerGraph"></paper-icon-button>
+          <paper-icon-button icon="icons:cached" on-click="cachedGraph"></paper-icon-button>
         </div>
       </div>
     `;
