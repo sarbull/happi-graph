@@ -77,16 +77,6 @@
         'simple-square': `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0H20V20H0V0Z" fill="white"/></svg>`,
       };
 
-      let zoomIn = document.querySelector('#zoom-in');
-      let zoomOut = document.querySelector('#zoom-out');
-      let centerGraph = document.querySelector('#center-graph');
-
-      let happiGraphInstance = document.querySelector('#happi-graph');
-
-      happiGraphInstance.addEventListener('happi-graph-on-node-click', ({ detail }) => {
-        console.log(detail);
-      });
-
       let data = {
         graphDirection: 'HORIZONTAL',
         selectedNodeId: 0,
@@ -105,29 +95,25 @@
           { id: 10, label: 'This is the value of Node 10', group: 'GroupName', properties: {} },
           { id: 11, label: 'This is the value of Node 11', group: 'GroupName', properties: {} }
         ],
-        links: []
+        links: [
+          { from: 0, to: 2, connectionFrom: false, connectionTo: true },
+          { from: 0, to: 5, connectionFrom: false, connectionTo: true },
+          { from: 0, to: 6, connectionFrom: false, connectionTo: true },
+          { from: 0, to: 7, connectionFrom: false, connectionTo: true },
+
+          { from: 2, to: 3, connectionFrom: false, connectionTo: true },
+          { from: 3, to: 4, connectionFrom: false, connectionTo: true },
+          { from: 4, to: 9, connectionFrom: false, connectionTo: true },
+          { from: 9, to: 10, connectionFrom: false, connectionTo: true },
+          { from: 10, to: 11, connectionFrom: false, connectionTo: true }
+        ]
       };
 
-      data.links = [
-        { from: 0, to: 2, connectionFrom: false, connectionTo: true },
-        { from: 0, to: 5, connectionFrom: false, connectionTo: true },
-        { from: 0, to: 6, connectionFrom: false, connectionTo: true },
-        { from: 0, to: 7, connectionFrom: false, connectionTo: true },
-
-        { from: 2, to: 3, connectionFrom: false, connectionTo: true },
-        { from: 3, to: 4, connectionFrom: false, connectionTo: true },
-        { from: 4, to: 9, connectionFrom: false, connectionTo: true },
-        { from: 9, to: 10, connectionFrom: false, connectionTo: true },
-        { from: 10, to: 11, connectionFrom: false, connectionTo: true }
-      ];
-
+      let happiGraphInstance = document.querySelector('#happi-graph');
       happiGraphInstance.iconsMap = iconsMap;
       happiGraphInstance.propertiesMap = propertiesMap;
       happiGraphInstance.data = data;
-
-      let happiGraphInstance2 = document.querySelector('#happi-graph-two');
-
-      happiGraphInstance2.addEventListener('happi-graph-on-node-click', ({ detail }) => {
+      happiGraphInstance.addEventListener('happi-graph-on-node-click', ({ detail }) => {
         console.log(detail);
       });
 
@@ -141,20 +127,21 @@
           { id: 3, label: 'This is the value of Node 3', group: 'GroupName', properties: {} },
           { id: 4, label: 'This is the value of Node 4', group: 'GroupName', properties: {} },
         ],
-        links: []
+        links: links = [
+          { from: 0, to: 1, connectionFrom: false, connectionTo: true },
+          { from: 0, to: 2, connectionFrom: false, connectionTo: true },
+          { from: 0, to: 3, connectionFrom: false, connectionTo: true },
+          { from: 3, to: 4, connectionFrom: false, connectionTo: true }
+        ]
       };
 
-      data2.links = [
-        { from: 0, to: 1, connectionFrom: false, connectionTo: true },
-        { from: 0, to: 2, connectionFrom: false, connectionTo: true },
-        { from: 0, to: 3, connectionFrom: false, connectionTo: true },
-        { from: 3, to: 4, connectionFrom: false, connectionTo: true }
-      ];
-
+      let happiGraphInstance2 = document.querySelector('#happi-graph-two');
       happiGraphInstance2.data = { ...data2 };
       happiGraphInstance2.iconsMap = iconsMap;
       happiGraphInstance2.propertiesMap = propertiesMap;
-
+      happiGraphInstance2.addEventListener('happi-graph-on-node-click', ({ detail }) => {
+        console.log(detail);
+      });
 
       let data3 = {
         graphDirection: 'VERTICAL',
@@ -167,24 +154,25 @@
       happiGraphInstance3.data = { ...data3 };
       happiGraphInstance3.iconsMap = iconsMap;
       happiGraphInstance3.propertiesMap = propertiesMap;
-
       happiGraphInstance3.addEventListener('happi-graph-on-node-click', ({ detail }) => {
         console.log(detail);
       });
 
-      zoomIn.addEventListener('click', () => {
+      /* Buttons */
+
+      document.querySelector('#zoom-in').addEventListener('click', () => {
         happiGraphInstance.customZoomIn();
         happiGraphInstance2.customZoomIn();
         happiGraphInstance3.customZoomIn();
       });
 
-      zoomOut.addEventListener('click', () => {
+      document.querySelector('#zoom-out').addEventListener('click', () => {
         happiGraphInstance.customZoomOut();
         happiGraphInstance2.customZoomOut();
         happiGraphInstance3.customZoomOut();
       });
 
-      centerGraph.addEventListener('click', () => {
+      document.querySelector('#center-graph').addEventListener('click', () => {
         happiGraphInstance.centerGraph();
         happiGraphInstance2.centerGraph();
         happiGraphInstance3.centerGraph();

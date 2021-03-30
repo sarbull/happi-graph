@@ -1,5 +1,7 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import * as d3 from 'd3';
+import '@polymer/paper-icon-button/paper-icon-button.js';
+
 import './happi-graph-legend';
 import { compute } from './happi-graph-algorithms';
 import {
@@ -9,7 +11,6 @@ import {
   getNodeHeight,
   isSelected
 } from './happi-graph-helpers';
-
 
 class HappiGraph extends PolymerElement {
   constructor() {
@@ -339,6 +340,7 @@ class HappiGraph extends PolymerElement {
       <style>
         :root {
           --lumo-font-family: var(--happi-graph-font-family);
+          --iron-icon-fill-color: var(--happi-graph-primary-color);
         }
 
         :host {
@@ -428,6 +430,14 @@ class HappiGraph extends PolymerElement {
           margin-right: 5px;
           margin-top: 5px;
         }
+
+        .happi-graph-actions {
+          display:flex;
+          flex-direction: column;
+          position:absolute;
+          top:0;
+          left:0;
+        }
       </style>
 
       <div class="happi-graph-container">
@@ -464,6 +474,12 @@ class HappiGraph extends PolymerElement {
                                 properties-map="{{ propertiesMap }}"></happi-graph-legend>
           </div>
         </template>
+
+        <div class="happi-graph-actions">
+          <paper-icon-button icon="icons:zoom-in" on-click="customZoomIn"></paper-icon-button>
+          <paper-icon-button icon="icons:zoom-out" on-click="customZoomOut"></paper-icon-button>
+          <paper-icon-button icon="icons:settings-overscan" on-click="centerGraph"></paper-icon-button>
+        </div>
       </div>
     `;
   }
