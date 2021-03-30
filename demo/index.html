@@ -59,9 +59,9 @@
       <happi-graph id="happi-graph-two"></happi-graph>
     </div>
 
-    <!-- <div class="container bordered"> -->
-      <!-- <happi-graph id="happi-graph-three"></happi-graph> -->
-    <!-- </div> -->
+    <div class="container bordered">
+      <happi-graph id="happi-graph-three"></happi-graph>
+    </div>
 
     <script>
       let propertiesMap = {
@@ -156,46 +156,50 @@
       happiGraphInstance2.propertiesMap = propertiesMap;
 
 
-      // let data3 = {
-      //   graphDirection: 'VERTICAL',
-      //   "selectedNodeId": 'term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8',
-      //   "nodes":[{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1iao9.e5opbug.skdff2.0ekpogs1n7p2e8g2ru549","label":"DATA_DATE","group":"RelationalColumn","properties":{"relationalTable":"IBS_UTBLIACML"},"level":-1},{"id":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k7apfcs.bebeg0j.94uekn.8fp27imt10gg820m1e61i","label":"DARE Test","group":"GlossaryCategory","properties":{"glossary":"Esperanto Test"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ib9v.2ou4ifi.hjrj69.11bqnhkl7fkk571disar9","label":"FIRST_NAME","group":"RelationalColumn","properties":{"schema":"ES_OS_ADMIN","database":"ESDLPROD_3505","relationalTable":"FOS_UC_USER"},"level":-1},{"id":"data_file_field@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ha5v.9v5ostf.mlc4hd.olsa4vbci8lntrsvs5so5","label":"LO_DATA_DT","group":"TabularColumn","properties":{"schema":"AR_X_LO_RLTNP_V7_ES"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.4ff0tu8.255r33.efp3bg2di19qevd09glie","label":"A9_TSECIDX","group":"RelationalColumn","properties":{"relationalTable":"ODS_LOAD_LIQUIDATION_COMPTE"},"level":-1},{"id":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"test_egeria","group":"GlossaryTerm","properties":{"glossary":"CheckCategoryH"},"level":0},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.3jr9ga7.86f7jr.s6pq1jgtv9t7mrfn6cdql","label":"AB_HCREA","group":"RelationalColumn","properties":{"relationalTable":"ODS_LOAD_LIQUIDATION_COMPTE"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ibca.rrt5qk9.v38l76.112ugrtovqr01o8i1f7g3","label":"ABA","group":"RelationalColumn","properties":{"schema":"ES_OS_ADMIN","database":"ESDLPROD_3505","relationalTable":"IBS_COL"},"level":-1},{"id":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k78i6d4.8d7g3u1.e5u373.a41osc1ankjf7c5grpf0v","label":"TEST","group":"GlossaryCategory","properties":{"glossary":"CheckCategoryH"},"level":-1}],
-      //   "links":[{"from":"data_file_field@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ha5v.9v5ostf.mlc4hd.olsa4vbci8lntrsvs5so5","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ibca.rrt5qk9.v38l76.112ugrtovqr01o8i1f7g3","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.4ff0tu8.255r33.efp3bg2di19qevd09glie","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1iao9.e5opbug.skdff2.0ekpogs1n7p2e8g2ru549","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ib9v.2ou4ifi.hjrj69.11bqnhkl7fkk571disar9","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","to":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k78i6d4.8d7g3u1.e5u373.a41osc1ankjf7c5grpf0v","label":"TermCategorization"},{"from":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","to":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k7apfcs.bebeg0j.94uekn.8fp27imt10gg820m1e61i","label":"TermCategorization"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.3jr9ga7.86f7jr.s6pq1jgtv9t7mrfn6cdql","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"}]
-      // };
+      let data3 = {
+        graphDirection: 'VERTICAL',
+        "selectedNodeId": 'term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8',
+        "nodes":[{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1iao9.e5opbug.skdff2.0ekpogs1n7p2e8g2ru549","label":"DATA_DATE","group":"RelationalColumn","properties":{"relationalTable":"IBS_UTBLIACML"},"level":-1},{"id":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k7apfcs.bebeg0j.94uekn.8fp27imt10gg820m1e61i","label":"DARE Test","group":"GlossaryCategory","properties":{"glossary":"Esperanto Test"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ib9v.2ou4ifi.hjrj69.11bqnhkl7fkk571disar9","label":"FIRST_NAME","group":"RelationalColumn","properties":{"schema":"ES_OS_ADMIN","database":"ESDLPROD_3505","relationalTable":"FOS_UC_USER"},"level":-1},{"id":"data_file_field@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ha5v.9v5ostf.mlc4hd.olsa4vbci8lntrsvs5so5","label":"LO_DATA_DT","group":"TabularColumn","properties":{"schema":"AR_X_LO_RLTNP_V7_ES"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.4ff0tu8.255r33.efp3bg2di19qevd09glie","label":"A9_TSECIDX","group":"RelationalColumn","properties":{"relationalTable":"ODS_LOAD_LIQUIDATION_COMPTE"},"level":-1},{"id":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"test_egeria","group":"GlossaryTerm","properties":{"glossary":"CheckCategoryH"},"level":0},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.3jr9ga7.86f7jr.s6pq1jgtv9t7mrfn6cdql","label":"AB_HCREA","group":"RelationalColumn","properties":{"relationalTable":"ODS_LOAD_LIQUIDATION_COMPTE"},"level":-1},{"id":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ibca.rrt5qk9.v38l76.112ugrtovqr01o8i1f7g3","label":"ABA","group":"RelationalColumn","properties":{"schema":"ES_OS_ADMIN","database":"ESDLPROD_3505","relationalTable":"IBS_COL"},"level":-1},{"id":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k78i6d4.8d7g3u1.e5u373.a41osc1ankjf7c5grpf0v","label":"TEST","group":"GlossaryCategory","properties":{"glossary":"CheckCategoryH"},"level":-1}],
+        "links":[{"from":"data_file_field@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ha5v.9v5ostf.mlc4hd.olsa4vbci8lntrsvs5so5","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ibca.rrt5qk9.v38l76.112ugrtovqr01o8i1f7g3","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.4ff0tu8.255r33.efp3bg2di19qevd09glie","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1iao9.e5opbug.skdff2.0ekpogs1n7p2e8g2ru549","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.c6hn1ib9v.2ou4ifi.hjrj69.11bqnhkl7fkk571disar9","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"},{"from":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","to":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k78i6d4.8d7g3u1.e5u373.a41osc1ankjf7c5grpf0v","label":"TermCategorization"},{"from":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","to":"category@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.ee6a64fe.66k7apfcs.bebeg0j.94uekn.8fp27imt10gg820m1e61i","label":"TermCategorization"},{"from":"database_column@68e36496-7167-4af7-abdd-a0cd36e24084:b1c497ce.60641b50.ov1n236ed.3jr9ga7.86f7jr.s6pq1jgtv9t7mrfn6cdql","to":"term@68e36496-7167-4af7-abdd-a0cd36e24084:6662c0f2.e1b1ec6c.66k78i6du.uchsna1.rn2epa.rfn2fjqf7h4qvmt5lflm8","label":"SemanticAssignment"}]
+      };
 
-      // let happiGraphInstance3 = document.querySelector('#happi-graph-three');
-      // happiGraphInstance3.data = { ...data3 };
-      // happiGraphInstance3.iconsMap = iconsMap;
-      // happiGraphInstance3.propertiesMap = propertiesMap;
+      let happiGraphInstance3 = document.querySelector('#happi-graph-three');
+      happiGraphInstance3.data = { ...data3 };
+      happiGraphInstance3.iconsMap = iconsMap;
+      happiGraphInstance3.propertiesMap = propertiesMap;
+
+      happiGraphInstance3.addEventListener('happi-graph-on-node-click', ({ detail }) => {
+        console.log(detail);
+      });
 
       zoomIn.addEventListener('click', () => {
         happiGraphInstance.customZoomIn();
         happiGraphInstance2.customZoomIn();
-        // happiGraphInstance3.customZoomIn();
+        happiGraphInstance3.customZoomIn();
       });
 
       zoomOut.addEventListener('click', () => {
         happiGraphInstance.customZoomOut();
         happiGraphInstance2.customZoomOut();
-        // happiGraphInstance3.customZoomOut();
+        happiGraphInstance3.customZoomOut();
       });
 
       centerGraph.addEventListener('click', () => {
         happiGraphInstance.centerGraph();
         happiGraphInstance2.centerGraph();
-        // happiGraphInstance3.centerGraph();
+        happiGraphInstance3.centerGraph();
       });
 
       document.querySelector('#remove-data').addEventListener('click', () => {
         happiGraphInstance.removeData();
         happiGraphInstance2.removeData();
-        // happiGraphInstance3.removeData();
+        happiGraphInstance3.removeData();
       });
 
       document.querySelector('#add-data').addEventListener('click', () => {
         happiGraphInstance.data = { ...data };
         happiGraphInstance2.data = { ...data2 };
-        // happiGraphInstance3.data = { ...data3 };
+        happiGraphInstance3.data = { ...data3 };
       });
     </script>
   </body>

@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
 
+export const simpleSquareIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0H20V20H0V0Z" fill="white"/></svg>`;
+
 export const isSelected = (nodeGroup) => {
   nodeGroup
     .append('path')
@@ -15,7 +17,7 @@ export const isSelected = (nodeGroup) => {
 
       return `translate(${x} ${y}) rotate(30 0 0)`;
     });
-}
+};
 
 export const addHeader = (nodeGroup) => {
   let header =
@@ -79,7 +81,7 @@ export const addHeader = (nodeGroup) => {
     .attr('transform', `translate(70, 50)`)
     .classed('label', true)
     .text((d) => d.label);
-}
+};
 
 export const addIcon = (nodeGroup, iconsMap) => {
   nodeGroup
@@ -90,7 +92,10 @@ export const addIcon = (nodeGroup, iconsMap) => {
 
   nodeGroup.each(function (d) {
     let icon = new DOMParser()
-      .parseFromString(iconsMap[d.type], 'application/xml')
+      .parseFromString(
+        iconsMap[d.type] ? iconsMap[d.type] : simpleSquareIcon,
+        'application/xml'
+      )
       .documentElement;
 
     d3.select(this)
@@ -99,7 +104,7 @@ export const addIcon = (nodeGroup, iconsMap) => {
       .node()
       .append(icon);
   })
-}
+};
 
 export const addProperties = (nodeGroup, iconsMap) => {
   nodeGroup.each(function (d) {
@@ -165,7 +170,10 @@ export const addProperties = (nodeGroup, iconsMap) => {
               });
 
             let icon = new DOMParser()
-              .parseFromString(iconsMap[p.icon], 'application/xml')
+              .parseFromString(
+                iconsMap[p.icon] ? iconsMap[p.icon] : simpleSquareIcon,
+                'application/xml'
+              )
               .documentElement;
 
             propertyGroup
@@ -182,7 +190,7 @@ export const addProperties = (nodeGroup, iconsMap) => {
         }
       });
   })
-}
+};
 
 export const getNodeHeight = (length) => {
   let defaultHeight = 70;
@@ -191,4 +199,4 @@ export const getNodeHeight = (length) => {
     (length >= 1 ? (length * 30) : 0);
 
   return defaultHeight + computedHeight;
-}
+};

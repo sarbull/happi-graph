@@ -6,6 +6,8 @@ import {
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-button/paper-button.js';
 
+import { simpleSquareIcon } from './happi-graph-helpers';
+
 class HappiGraphLegend extends PolymerElement {
   static get properties() {
     return {
@@ -58,7 +60,11 @@ class HappiGraphLegend extends PolymerElement {
   }
 
   getIcon(groupName) {
-    return this.iconsMap[this.propertiesMap[groupName].icon];
+    if(this.propertiesMap[groupName]) {
+      return this.iconsMap[this.propertiesMap[groupName].icon];
+    } else {
+      return simpleSquareIcon;
+    }
   }
 
   static get template() {
