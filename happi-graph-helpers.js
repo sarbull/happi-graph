@@ -84,7 +84,7 @@ export const addHeader = (nodeGroup) => {
 export const addIcon = (nodeGroup, iconsMap) => {
   nodeGroup
     .append('path')
-    .attr('transform', `translate(20,20)`)
+    .attr('transform', `translate(20,17)`)
     .attr('d', 'M40.5566 15.6865C41.4498 17.2335 41.4498 19.1395 40.5566 20.6865L32.9434 33.8731C32.0502 35.4201 30.3996 36.3731 28.6132 36.3731H13.3868C11.6004 36.3731 9.94979 35.4201 9.05662 33.8731L1.44338 20.6865C0.550212 19.1395 0.550212 17.2335 1.44338 15.6865L9.05662 2.5C9.94979 0.952994 11.6004 0 13.3868 0H28.6132C30.3996 0 32.0502 0.952995 32.9434 2.5L40.5566 15.6865Z')
     .attr('fill', '#5C82EB');
 
@@ -95,7 +95,7 @@ export const addIcon = (nodeGroup, iconsMap) => {
 
     d3.select(this)
       .append('g')
-      .attr('transform', `translate(31,28)`)
+      .attr('transform', `translate(31,25)`)
       .node()
       .append(icon);
   })

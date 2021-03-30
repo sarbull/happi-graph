@@ -355,6 +355,18 @@ class HappiGraph extends PolymerElement {
           font-family: var(--happi-graph-font-family);
         }
 
+        .header > .value {
+          font-size: 17px;
+        }
+
+        .header > .full-header {
+          font-size: 17px;
+        }
+
+        .header > .label {
+          fill: var(--happi-graph-gray-color);
+        }
+
         .pin {
           fill: var(--happi-graph-primary-color);
         }
