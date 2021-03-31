@@ -74,9 +74,7 @@ class HappiGraph extends PolymerElement {
     console.log('_dataUpdate(', newData, ')');
 
     if(newData && newData.nodes.length > 0 && newData.links.length > 0) {
-      if(this.data === null) {
-        this.removeData();
-      }
+      this.removeData();
 
       this.graphDirection = newData.graphDirection;
 
@@ -342,7 +340,7 @@ class HappiGraph extends PolymerElement {
 
   hasSize(a) {
     if(a) {
-      return a.length >= 0;
+      return a.length > 0;
     } else {
       return false;
     }
@@ -480,7 +478,7 @@ class HappiGraph extends PolymerElement {
           </svg>
         </div>
 
-        <template is="dom-if" if="[[ hasSize(data.nodes) ]]">
+        <template is="dom-if" if="[[ hasSize(nodes, data) ]]">
           <div class="happi-graph-legend">
             <happi-graph-legend graph-nodes="{{ nodes }}"
                                 icons-map="{{ iconsMap }}"
@@ -488,12 +486,14 @@ class HappiGraph extends PolymerElement {
           </div>
         </template>
 
-        <div class="happi-graph-actions">
-          <paper-icon-button icon="icons:zoom-in" on-click="customZoomIn"></paper-icon-button>
-          <paper-icon-button icon="icons:zoom-out" on-click="customZoomOut"></paper-icon-button>
-          <paper-icon-button icon="icons:settings-overscan" on-click="centerGraph"></paper-icon-button>
-          <paper-icon-button icon="icons:cached" on-click="cachedGraph"></paper-icon-button>
-        </div>
+        <template is="dom-if" if="[[ hasSize(nodes, data) ]]">
+          <div class="happi-graph-actions">
+            <paper-icon-button icon="icons:zoom-in" on-click="customZoomIn"></paper-icon-button>
+            <paper-icon-button icon="icons:zoom-out" on-click="customZoomOut"></paper-icon-button>
+            <paper-icon-button icon="icons:settings-overscan" on-click="centerGraph"></paper-icon-button>
+            <paper-icon-button icon="icons:cached" on-click="cachedGraph"></paper-icon-button>
+          </div>
+        </template>
       </div>
     `;
   }
